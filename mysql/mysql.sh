@@ -40,9 +40,7 @@ verify()
 		cmd="v=\$$var"
 		eval $cmd
 		[ "${v}z" = "z" ] &&
-			echo "$var not specified"
-			show_usage
-			exit
+			err_exit "$var not specified"
 	done
 }
 
