@@ -1,66 +1,6 @@
-#---------------------------------------------
-#---------------------------------------------
-setup()
-{
-	#
-	now=$(date '+%Y%m%d_%H%M%S')
-	now_yyyymmdd=$(date '+%Y%m%d')
-	logfile=/var/tmp/$now.log
-}
+#!/usr/bin/ksh
 
-#---------------------------------------------
-#---------------------------------------------
-err_exit()
-{
-	echo $*
-	exit 1
-}
-
-#---------------------------------------------
-#---------------------------------------------
-exec_cmd()
-{
-	cmd=$1
-	eval $cmd  >> $logfile
-	if [ $? -eq 0 ] ; then
-		echo "success : [$cmd]"
-	else
-		echo "fail : [$cmd]"
-		err_exit ""
-	fi
-}
-
-#---------------------------------------------
-#---------------------------------------------
-verify()
-{
-	for var in $*
-	do
-		unset v
-		cmd="v=\$$var"
-		eval $cmd
-		[ "${v}z" = "z" ] &&
-			err_exit "$var not specified"
-	done
-}
-
-#---------------------------------------------
-#---------------------------------------------
-read_and_verify()
-{
-	echo -n "enter: $1"
-	read $1	
-
-	for var in $1
-	do
-		cmd="v=\$$var"
-		echo [$cmd]
-		eval $cmd
-		[ ${v:zzz} = "zzz" ] &&
-			err_exit "$var not set"
-	done
-}
-
+source ../common_ksh/base.ksh
 
 
 #---------------------------------------------
@@ -90,15 +30,6 @@ mysql_create_schema()
 
 	exec_cmd "mysql --host $db_host --user $db_user --password  < $cr_schema_sql"
 	echo "created schema $db_name "
-}
-
-#---------------------------------------------
-#---------------------------------------------
-recv_user_response()
-{
-	echo -n "do you want to continue? " 
-	read response
-	[ ${response:zz} != "y" ] && exit
 }
 
 #---------------------------------------------
@@ -169,7 +100,7 @@ EOF
 #-----------------------------
 # Main
 #-----------------------------
-setup
+base_setup
 read_args $*
 
 do_action

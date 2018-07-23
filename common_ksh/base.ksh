@@ -104,7 +104,7 @@ continue_on_user_response()
 	prompt=$*
 	echo -n $prompt
 	read response
-	[ ${response:zz} != "y" -a ${response:zz} != "Y" ] && exit
+	[ "${response:zz}" != "y" -a "${response:zz}" != "Y" ] && exit
 }
 
 #---------------------------------------------

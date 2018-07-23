@@ -16,6 +16,8 @@ step_for_wordpress()
 
 cat << EOF
 
+
+
 sudo cd /var/www/html
 sudo tar -xvf latest.tar
 
