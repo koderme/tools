@@ -26,7 +26,7 @@ wp_download()
 		exec_cmd "wget https://wordpress.org/$wp_tar_gz"
 		exec_cmd "gunzip  $wp_tar_gz"
 	else
-		echo "$wp_tar is already present" 
+		log "$wp_tar is already present"
 		continue_on_user_response "Do you want to use this? "
 	fi
 }
@@ -38,7 +38,7 @@ wp_install()
 {
 	cd $wp_install_dir
 
-	exec_cmd "tar -xvf $wp_download_dir/$wp_tar 1> /dev/null 2>&1"
+	exec_cmd "tar -xvf $wp_download_dir/$wp_tar "
 }
 
 #--------------------------------------------
@@ -64,8 +64,8 @@ wp_post_install()
 	chown -R www-data.www-data .
 	exec_cmd "systemctl start apache2"
 
-	echo "Installation of wordpress is completed"
-	echo "Edit wp-config.php file"
+	log "Installation of wordpress is completed"
+	log "Edit $PWD/wp-config.php file"
 }
 
 #--------------------------------------------
@@ -76,4 +76,5 @@ wp_setup
 wp_download
 wp_install
 wp_post_install
+log 
 
