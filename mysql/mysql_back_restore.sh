@@ -88,9 +88,9 @@ cat<<EOF
 
 	e.g.
 
-	./mysql.sh  -a backup -h 192.168.1.33 -d kesar -u gharat
+	$0  -a backup -h 192.168.1.33 -d ksp_db -u ksp_adm
 
-	./mysql.sh  -a restore -h 192.168.1.36 -d kesar_restore -u admin -f /var/tmp/gharat.kesar.20180719.sql
+	$0  -a restore -h 192.168.1.36 -d ksp_db -u ksp_adm -f /var/tmp/gharat.kesar.20180719.sql
 
 EOF
 

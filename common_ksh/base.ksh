@@ -61,6 +61,7 @@ verify()
 		eval $cmd
 		[ "${v}z" = "z" ] &&
 			err_exit "$var not specified"
+			show_usage
 	done
 }
 
