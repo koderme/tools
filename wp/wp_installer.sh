@@ -8,8 +8,7 @@ source ../common_ksh/base.ksh
 wp_setup()
 {
 	base_setup
-	wp_download_dir=/var/tmp/wordpress
-	wp_tar=latest.tar
+	wp_download_dir=../../backup/wp_base/
 	wp_tar_gz=latest.tar.gz
 	apache_install_dir=/var/www/html/
 	wp_install_dir=$apache_install_dir
@@ -22,13 +21,12 @@ wp_download()
 {
 	continue_on_user_response "Are you running this with sudo? (y|N) : "
 
-	if [ ! -f $wp_download_dir/$wp_tar ] ; then
-		mkdir -p $wp_download_dir 2> /dev/null
+	if [ ! -f $wp_download_dir/$wp_tar_gz ] ; then
+		exec_cmd "mkdir -p $wp_download_dir"
 		cd $wp_download_dir
 		exec_cmd "wget https://wordpress.org/$wp_tar_gz"
-		exec_cmd "gunzip  $wp_tar_gz"
 	else
-		log "$wp_tar is already present"
+		log "$wp_download_dir/$wp_tar_gz is already present"
 		continue_on_user_response "Do you want to use this? (y|N) : "
 	fi
 }
@@ -38,9 +36,7 @@ wp_download()
 #--------------------------------------------
 wp_install()
 {
-	cd $wp_install_dir
-
-	exec_cmd "tar -xvf $wp_download_dir/$wp_tar "
+	exec_cmd "tar -xvzf $wp_download_dir/$wp_tar_gz -C $wp_install_dir"
 }
 
 #--------------------------------------------
