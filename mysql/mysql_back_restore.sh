@@ -1,4 +1,4 @@
-#!/usr/bin/ksh
+#!/bin/ksh
 
 source ../common_ksh/base.ksh
 
