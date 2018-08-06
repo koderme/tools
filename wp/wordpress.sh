@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 db_name=shop_db
 db_user=admin

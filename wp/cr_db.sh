@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 db_name=mylocalshop
 db_user=wp_shop
