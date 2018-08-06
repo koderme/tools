@@ -59,9 +59,10 @@ verify()
 		unset v
 		cmd="v=\$$var"
 		eval $cmd
-		[ "${v}z" = "z" ] &&
+		if [ "${v}z" = "z" ] ; then
 			err_exit "$var not specified"
 			show_usage
+		fi
 	done
 }
 

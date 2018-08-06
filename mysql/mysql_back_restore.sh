@@ -7,14 +7,15 @@ source ../common_ksh/base.ksh
 #---------------------------------------------
 mysql_dbdump()
 {
-	#echo "eg: 192.168.1.36 kesar2_restore gharat" 
 	db_dump_file=/var/tmp/$USER.$db_name.$now_yyyymmdd.sql
 	exec_cmd "mysqldump --host $db_host --user $db_user -p $db_name > $db_dump_file"
+	echo "compressing the file ... "
+	exec_cmd "gzip $db_dump_file"
 	echo "encrpting the file ... "
-	exec_cmd "openssl des3 < $db_dump_file > $db_dump_file.EN"
-	exec_cmd "rm $db_dump_file"
+	exec_cmd "openssl des3 < $db_dump_file.gz > $db_dump_file.gz.EN"
+	exec_cmd "rm $db_dump_file.gz"
 	echo ""
-	echo "dump successful : $db_dump_file.EN"
+	echo "dump successful : $db_dump_file.gz.EN"
 }
 
 #---------------------------------------------
@@ -22,7 +23,14 @@ mysql_dbdump()
 mysql_restore()
 {
 	tmp_file=/var/tmp/$now.sql
-	exec_cmd "openssl des3 -d < $restore_file > $tmp_file "
+	tmp_file_gz=$tmp_file.gz
+
+	echo "decrypting file ... "
+	exec_cmd "openssl des3 -d < $restore_file > $tmp_file_gz "
+
+	echo "unzipping file ... "
+	exec_cmd "gunzip $tmp_file_gz"
+
 	exec_cmd "mysql --host $db_host --user $db_user -p $db_name < $tmp_file"
 	exec_cmd "rm $tmp_file"
 	echo "restored db from $db_restore_file"
@@ -32,6 +40,7 @@ mysql_restore()
 #---------------------------------------------
 mysql_create_schema()
 {
+set -x
 	cr_schema_sql=$(tempfile)
 	echo "create database $db_name;" > $cr_schema_sql
 
