@@ -49,8 +49,9 @@ wp_backup()
 	prefix=wp
 	backup_file=/var/tmp/$prefix.$now_datetime.tar.gz
 
-	cd /var/www/html
+	exec_cmd "cd /var/www/html"
 	exec_cmd "tar -czvf $backup_file . 1> /dev/null"
+	exec_cmd "openssl des3 < $backup_file > $backup_file.EN"
 
 	log "create backup file $backup_file"
 }
@@ -60,9 +61,7 @@ wp_backup()
 #--------------------------------------------
 wp_is_installed()
 {
-	cd $apache_install_dir
-
-	[ -f wp-config.php ] && return 0
+	[ -f $apache_install_dir/wp-config.php ] && return 0
 
 	return 1
 }
@@ -86,15 +85,23 @@ wp_restore()
 		exec_cmd "mv $apache_install_dir $backup_dir"
 		log "wp backedup under $backup_dir"
 
-		# Create empty dir for fresh installation
-		exec_cmd "mkdir $apache_install_dir"
-		wp_ownership
-
 	fi
+
+	# Create empty dir for fresh installation
+	exec_cmd "mkdir $apache_install_dir"
+	wp_ownership
+
 
 	# Restoring
 	log "restoring from $src_file ..."
-	exec_cmd "tar -xvzf $src_file -C $apache_install_dir 1> /dev/null"
+
+	# If its encrypted, decrypt it frst
+	src_tar=/var/tmp/$now.tar.gz
+	exec_cmd "openssl des3 -d < $src_file > $src_tar"
+	
+	exec_cmd "tar -xvzf $src_tar -C $apache_install_dir 1> /dev/null"
+
+	exec_cmd "rm $src_tar"
 }
 
 #--------------------------------------------

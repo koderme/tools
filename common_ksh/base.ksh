@@ -39,7 +39,7 @@ log()
 exec_cmd()
 {
 	cmd=$1
-	eval $cmd  2>&1 | tee -a $logfile
+	eval $cmd  1> $logfile 2>&1
 	if [ $? -eq 0 ] ; then
 		echo " success : [$cmd]"
 	else
