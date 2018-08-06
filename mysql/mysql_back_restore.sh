@@ -40,7 +40,6 @@ mysql_restore()
 #---------------------------------------------
 mysql_create_schema()
 {
-set -x
 	cr_schema_sql=$(tempfile)
 	echo "create database $db_name;" > $cr_schema_sql
 
