@@ -10,15 +10,22 @@ mysql_dbdump()
 	#echo "eg: 192.168.1.36 kesar2_restore gharat" 
 	db_dump_file=/var/tmp/$USER.$db_name.$now_yyyymmdd.sql
 	exec_cmd "mysqldump --host $db_host --user $db_user -p $db_name > $db_dump_file"
-	echo "dump successful : $db_dump_file"
+	echo "encrpting the file ... "
+	exec_cmd "openssl des3 < $db_dump_file > $db_dump_file.EN"
+	exec_cmd "rm $db_dump_file"
+	echo ""
+	echo "dump successful : $db_dump_file.EN"
 }
 
 #---------------------------------------------
 #---------------------------------------------
 mysql_restore()
 {
-	exec_cmd "mysql --host $db_host --user $db_user -p $db_name < $restore_file"
-	echo "restored $db_restore_file"
+	tmp_file=/var/tmp/$now.sql
+	exec_cmd "openssl des3 -d < $restore_file > $tmp_file "
+	exec_cmd "mysql --host $db_host --user $db_user -p $db_name < $tmp_file"
+	exec_cmd "rm $tmp_file"
+	echo "restored db from $db_restore_file"
 }
 
 #---------------------------------------------
