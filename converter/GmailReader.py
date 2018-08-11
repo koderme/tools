@@ -15,7 +15,12 @@ import email
 import email.header
 import datetime
 import os
+import distutils.dir_util
 
+# Dir structure
+# <source>/<req>/<rating>/<sender>-<yyyymmdd>-<actual-filename>
+#
+WORK_DIR = 'downloads'
 
 EMAIL_ACCOUNT = "sales.hueklr@gmail.com"
 
@@ -27,12 +32,16 @@ EMAIL_FOLDER = "INBOX"
 EMAIL_CATEGORY = 'ALL'
 EMAIL_CATEGORY = '(UNSEEN)'
 
-RC_OK = 'OK'
+RESUME_SRC_HIRIST = 'hirist'
+RESUME_SRC_NAUKRI = 'naukri'
+RESUME_SRC_OTHERS = 'others'
 
-workDir = '.'
-downloadDir = 'email_attachment'
-if downloadDir not in os.listdir(workDir):
-	os.mkdir(downloadDir)
+NAUKRI_RATING_2_STAR = '2s'
+NAUKRI_RATING_3_STAR = '3s'
+NAUKRI_RATING_4_STAR = '4s'
+NAUKRI_RATING_5_STAR = '5s'
+
+RC_OK = 'OK'
 
 
 def process_mailbox(M):
@@ -56,7 +65,13 @@ def process_mailbox(M):
 
 		msg = email.message_from_bytes(fetchedEmail[0][1])
 
+		# Subject
+		hdr = email.header.make_header(email.header.decode_header(msg['Subject']))
+		subject = str(hdr)
+
 		for part in msg.walk():
+			print('--------------part------------------')
+			#print(dir(part))
 			if part.get_content_maintype() == 'multipart':
 				# print part.as_string()
 				continue
@@ -64,18 +79,17 @@ def process_mailbox(M):
 				# print part.as_string()
 				continue
 			fileName = part.get_filename()
+			sender = msg['from'].split()[-1]
 			if bool(fileName):
 				print('message with attachment %s', fileName)
-				filePath = os.path.join(workDir, downloadDir, fileName)
+				downloadDir = createDir(sender, subject)	
+				filePath = os.path.join(downloadDir, fileName)
 				if not os.path.isfile(filePath) :
 					print(fileName)
 					fp = open(filePath, 'wb')
 					fp.write(part.get_payload(decode=True))
 					fp.close()
 
-		# Subject
-		hdr = email.header.make_header(email.header.decode_header(msg['Subject']))
-		subject = str(hdr)
 
 		print('----------------------------------------------------');
 		print('Message %s: %s' % (msgId, subject))
@@ -89,7 +103,30 @@ def process_mailbox(M):
 			print ("Local Date:", \
 				local_date.strftime("%a, %d %b %Y %H:%M:%S"))
 
+def createDir(sender, subject):
 
+	source = RESUME_SRC_OTHERS
+	rating = 'unknown'
+
+	if (subject.lower().find(RESUME_SRC_HIRIST) != -1):
+		source = RESUME_SRC_HIRIST
+	elif ( subject.lower().find(RESUME_SRC_NAUKRI) != -1):
+		source = RESUME_SRC_NAUKRI
+		if ( subject.lower().find(NAUKRI_RATING_2_STAR) != -1):
+			rating = '2S'
+		elif ( subject.lower().find(NAUKRI_RATING_3_STAR) != -1):
+			rating = '3S'
+		elif ( subject.lower().find(NAUKRI_RATING_4_STAR) != -1):
+			rating = '4S'
+		elif ( subject.lower().find(NAUKRI_RATING_5_STAR) != -1):
+			rating = '5S'
+
+	requirement = 'unknown'
+	downloadDir = os.path.join(WORK_DIR, source, requirement, rating)
+
+	distutils.dir_util.mkpath(downloadDir)
+
+	return downloadDir
 
 #----------------------------------------
 # Main
