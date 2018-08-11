@@ -1,0 +1,15 @@
+# Load document or pdf
+# Convert to Resume
+
+# Resume
+#   Filename
+#   DocType
+#   SkillMap  (key=string, value=true/false)
+#   api
+#    hasSkill(string)
+#    hasSkill(string[])
+
+# ResumeParser
+#   Resume parse(file)
+#   Resume parse(file, type)
+
