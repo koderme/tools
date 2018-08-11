@@ -36,10 +36,10 @@ RESUME_SRC_HIRIST = 'hirist'
 RESUME_SRC_NAUKRI = 'naukri'
 RESUME_SRC_OTHERS = 'others'
 
-NAUKRI_RATING_2_STAR = '2s'
-NAUKRI_RATING_3_STAR = '3s'
-NAUKRI_RATING_4_STAR = '4s'
-NAUKRI_RATING_5_STAR = '5s'
+NAUKRI_RATING_2_STAR = '2 star applicant'
+NAUKRI_RATING_3_STAR = '3 star applicant'
+NAUKRI_RATING_4_STAR = '4 star applicant'
+NAUKRI_RATING_5_STAR = '5 star applicant'
 
 RC_OK = 'OK'
 
@@ -67,7 +67,7 @@ def process_mailbox(M):
 
 		# Subject
 		hdr = email.header.make_header(email.header.decode_header(msg['Subject']))
-		subject = str(hdr)
+		subject = str(hdr).lower()
 
 		for part in msg.walk():
 			print('--------------part------------------')
@@ -103,25 +103,45 @@ def process_mailbox(M):
 			print ("Local Date:", \
 				local_date.strftime("%a, %d %b %Y %H:%M:%S"))
 
+
+def getReq(subject):
+	IGNORE_WORDS = [ 'fwd:', 'star', '3', '4', '5', 'opening', 'for', 'applicant', '-', 'naukri.com', 'hirist', 'yrs', 'years', 'forward', '/']
+	
+	# Naukri format of subject
+	# 3 star applicant - Naukri.com - Opening for Java Spring Hibernate Developer - Member Technical Staff, Metric Stream Infotech, 2.6 yrs, Bengaluru / Bangalore
+	#
+	if (subject.find(RESUME_SRC_NAUKRI) != -1):
+		subjectToks = subject.split('-')
+		toks = subjectToks[2].split()
+	else:
+		toks = subject.split()
+	
+
+	x = [i for i in toks if i not in IGNORE_WORDS] 
+	return '-'.join(x)
+
+	
+
 def createDir(sender, subject):
 
 	source = RESUME_SRC_OTHERS
 	rating = 'unknown'
 
-	if (subject.lower().find(RESUME_SRC_HIRIST) != -1):
+	if (subject.find(RESUME_SRC_HIRIST) != -1):
 		source = RESUME_SRC_HIRIST
-	elif ( subject.lower().find(RESUME_SRC_NAUKRI) != -1):
+	elif ( subject.find(RESUME_SRC_NAUKRI) != -1):
 		source = RESUME_SRC_NAUKRI
-		if ( subject.lower().find(NAUKRI_RATING_2_STAR) != -1):
-			rating = '2S'
-		elif ( subject.lower().find(NAUKRI_RATING_3_STAR) != -1):
-			rating = '3S'
-		elif ( subject.lower().find(NAUKRI_RATING_4_STAR) != -1):
-			rating = '4S'
-		elif ( subject.lower().find(NAUKRI_RATING_5_STAR) != -1):
-			rating = '5S'
+		if ( subject.find(NAUKRI_RATING_2_STAR) != -1):
+			rating = '2STAR'
+		elif ( subject.find(NAUKRI_RATING_3_STAR) != -1):
+			rating = '3STAR'
+		elif ( subject.find(NAUKRI_RATING_4_STAR) != -1):
+			rating = '4STAR'
+		elif ( subject.find(NAUKRI_RATING_5_STAR) != -1):
+			rating = '5STAR'
 
 	requirement = 'unknown'
+	requirement = getReq(subject)
 	downloadDir = os.path.join(WORK_DIR, source, requirement, rating)
 
 	distutils.dir_util.mkpath(downloadDir)
