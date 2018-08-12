@@ -78,17 +78,21 @@ def process_mailbox(M):
 			if part.get('Content-Disposition') is None:
 				# print part.as_string()
 				continue
-			fileName = part.get_filename()
-			sender = msg['from'].split()[-1]
-			if bool(fileName):
-				print('message with attachment %s', fileName)
-				downloadDir = createDir(sender, subject)	
+			senderName = getSenderName(msg)
+			senderEmail = getSenderEmail(msg)
+			origFileName = part.get_filename()
+			if bool(origFileName):
+				print('message with attachment %s', origFileName)
+				fileName = senderName + '-' + origFileName
+				downloadDir = createDir(subject)	
 				filePath = os.path.join(downloadDir, fileName)
 				if not os.path.isfile(filePath) :
 					print(fileName)
 					fp = open(filePath, 'wb')
 					fp.write(part.get_payload(decode=True))
 					fp.close()
+				else:
+					print('error: file(%s) already exist' % (fileName))
 
 
 		print('----------------------------------------------------');
@@ -103,6 +107,14 @@ def process_mailbox(M):
 			print ("Local Date:", \
 				local_date.strftime("%a, %d %b %Y %H:%M:%S"))
 
+def getSenderName(message):
+	senderToks = message['from'].split();
+	senderToks.pop(-1)
+	return '.'.join(senderToks)
+
+def getSenderEmail(message):
+	sender = message['from'].split()[-1]
+	return sender.replace('<', '').replace('>', '')
 
 def getReq(subject):
 	IGNORE_WORDS = [ 'fwd:', 'star', '3', '4', '5', 'opening', 'for', 'applicant', '-', 'naukri.com', 'hirist', 'yrs', 'years', 'forward', '/']
@@ -122,7 +134,7 @@ def getReq(subject):
 
 	
 
-def createDir(sender, subject):
+def createDir(subject):
 
 	source = RESUME_SRC_OTHERS
 	rating = 'unknown'

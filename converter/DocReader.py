@@ -19,11 +19,9 @@ def getFile(dirName):
 	x = [f.name for f in os.scandir() if f.is_file()]
 	print(x)
 
-def readEmail():
-	
 
-
-#fname = '../temp/jagadeesh-karri.docx';
-#x = getText(fname);
-getFile('.');
+fname = '../temp/jagadeesh-karri.docx';
+x = getText(fname);
+print(x)
+#getFile('.');
 
