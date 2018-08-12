@@ -11,6 +11,7 @@ from docx import Document
 # John White |naukri | java-spring| 3S   | 1   | 1   | 0   |     | <sum>
 #
 
+LOCATION         = [ 'bengaluru', 'banglore', 'mumbai', 'hyderabad', 'chennai', 'gurgaon', 'noida' ]
 JAVA_BACKEND     = [ 'java', 'spring', 'j2ee' ]
 JAVA_WEBSERVICES = [ 'soap', 'rest', 'webservices' ]
 JAVA_CLOUD       = [ 'spring boot', 'cloud', 'microservices' ]
@@ -26,9 +27,8 @@ INTEGRATION      = [ 'mq', 'kafka' ]
 BUILD            = [ 'maven', 'ant', 'teamcity' ]
 CONTAINER        = [ 'docker', 'puppet', 'chef', 'ansible' ]
 OTHERS           = [ 'bluetooth', 'gaming', 'embedded' ]
-LOCATION         = [ 'bengaluru', 'banglore', 'mumbai', 'hyderabad', 'chennai', 'gurgaon', 'noida' ]
 
-ALL_FIELDS =  JAVA_BACKEND + JAVA_WEBSERVICES + JAVA_CLOUD + CLOUD_FRAMEWORK + SCRIPTING + ARCHITECT + OS + CERTIFICATION + DOT_NET_MATCH_SKILL + DB + ORM + INTEGRATION + BUILD + CONTAINER + OTHERS
+ALL_FIELDS =  LOCATION + JAVA_BACKEND + JAVA_WEBSERVICES + JAVA_CLOUD + CLOUD_FRAMEWORK + SCRIPTING + ARCHITECT + OS + CERTIFICATION + DOT_NET_MATCH_SKILL + DB + ORM + INTEGRATION + BUILD + CONTAINER + OTHERS
 
 FIELD_SEP = ','
 
@@ -39,11 +39,11 @@ def parseDocx(filename):
 	fullText = []
 	for para in doc.paragraphs:
 		fullText.append(para.text)
-	return '\n'.join(fullText)
+	return '\n'.join(fullText).lower()
 
 
 def findMatchingCv(inDir, skillArr):
-	colHead = [ 'src', 'req', 'rating', 'fpath' ] + ALL_FIELDS
+	colHead = [ 'src', 'req', 'rating', 'fpath' ] + ALL_FIELDS + [ 'match']
 	print(FIELD_SEP.join(colHead))
 	for root, _, filenames in os.walk(inDir):
 		for filename in filenames: 
@@ -55,12 +55,15 @@ def findMatchingCv(inDir, skillArr):
 			if (filename.endswith("docx")):
 
 				stringCV = parseDocx(fpath)
-			
+	
+				skillMatchCount = 0	
 				for skill in skillArr:
 					if (stringCV.find(skill) != -1):
 						result += FIELD_SEP + '1';
+						skillMatchCount += 1
 					else:
 						result += FIELD_SEP + '0';
+			result += FIELD_SEP + str(skillMatchCount)
 			print(result)
 
 
