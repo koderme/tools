@@ -2,6 +2,7 @@
 
 import docx
 import os
+import textract
 
 from docx import Document
 
@@ -41,21 +42,27 @@ def parseDocx(filename):
 		fullText.append(para.text)
 	return '\n'.join(fullText).lower()
 
+def parseFile(inFile):
+	try:
+		#return textract.process(inFile).decode('utf-8').lower()
+		return textract.process(inFile).decode().lower()
+	except:
+		print("Error extracting text from (%s)" % (inFile)) 
+		return ''
 
 def findMatchingCv(inDir, skillArr):
 	colHead = [ 'src', 'req', 'rating', 'fpath' ] + ALL_FIELDS + [ 'match']
 	print(FIELD_SEP.join(colHead))
-	for root, _, filenames in os.walk(inDir):
-		for filename in filenames: 
-			fpath = os.path.join(root,filename)
+	for root, _, fileArr in os.walk(inDir):
+		for rFile in fileArr: 
+			fpath = os.path.join(root, rFile)
 			fpathSplitted = fpath.split('/')
 			fpathSplitted.pop(0)  # Remove first token
 			result = FIELD_SEP.join(fpathSplitted)
 
-			if (filename.endswith("docx")):
+			if ( rFile.endswith("docx") or rFile.endswith('doc') or rFile.endswith('pdf') ):
 
-				stringCV = parseDocx(fpath)
-	
+				stringCV = parseFile(fpath)
 				skillMatchCount = 0	
 				for skill in skillArr:
 					if (stringCV.find(skill) != -1):
