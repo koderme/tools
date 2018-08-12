@@ -26,8 +26,9 @@ INTEGRATION      = [ 'mq', 'kafka' ]
 BUILD            = [ 'maven', 'ant', 'teamcity' ]
 CONTAINER        = [ 'docker', 'puppet', 'chef', 'ansible' ]
 OTHERS           = [ 'bluetooth', 'gaming', 'embedded' ]
+LOCATION         = [ 'bengaluru', 'banglore', 'mumbai', 'hyderabad', 'chennai', 'gurgaon', 'noida' ]
 
-ALL =  JAVA_BACKEND + JAVA_WEBSERVICES + JAVA_CLOUD + CLOUD_FRAMEWORK + SCRIPTING + ARCHITECT + OS + CERTIFICATION + DOT_NET_MATCH_SKILL + DB + ORM + INTEGRATION + BUILD + CONTAINER + OTHERS
+ALL_FIELDS =  JAVA_BACKEND + JAVA_WEBSERVICES + JAVA_CLOUD + CLOUD_FRAMEWORK + SCRIPTING + ARCHITECT + OS + CERTIFICATION + DOT_NET_MATCH_SKILL + DB + ORM + INTEGRATION + BUILD + CONTAINER + OTHERS
 
 FIELD_SEP = ','
 
@@ -42,10 +43,10 @@ def parseDocx(filename):
 
 
 def findMatchingCv(inDir, skillArr):
+	colHead = [ 'src', 'req', 'rating', 'fpath' ] + ALL_FIELDS
+	print(FIELD_SEP.join(colHead))
 	for root, _, filenames in os.walk(inDir):
 		for filename in filenames: 
-			print("---------------------------")
-
 			fpath = os.path.join(root,filename)
 			fpathSplitted = fpath.split('/')
 			fpathSplitted.pop(0)  # Remove first token
@@ -64,6 +65,6 @@ def findMatchingCv(inDir, skillArr):
 
 
 dir1='downloads'
-findMatchingCv(dir1, ALL)
+findMatchingCv(dir1, ALL_FIELDS)
 
 
