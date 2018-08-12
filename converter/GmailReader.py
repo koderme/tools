@@ -16,6 +16,7 @@ import email.header
 import datetime
 import os
 import distutils.dir_util
+import datetime
 
 # Dir structure
 # <source>/<req>/<rating>/<sender>-<yyyymmdd>-<actual-filename>
@@ -83,7 +84,7 @@ def process_mailbox(M):
 			origFileName = part.get_filename()
 			if bool(origFileName):
 				print('message with attachment %s', origFileName)
-				fileName = senderName + '-' + origFileName
+				fileName = senderName + '-' + NOW_YYYMMDD + '-' + origFileName
 				downloadDir = createDir(subject)	
 				filePath = os.path.join(downloadDir, fileName)
 				if not os.path.isfile(filePath) :
@@ -132,6 +133,8 @@ def getReq(subject):
 	x = [i for i in toks if i not in IGNORE_WORDS] 
 	return '-'.join(x)
 
+def currentDate():
+	return datetime.datetime.now().strftime ("%Y%m%d")
 	
 
 def createDir(subject):
@@ -163,6 +166,8 @@ def createDir(subject):
 #----------------------------------------
 # Main
 #----------------------------------------
+
+NOW_YYYMMDD = currentDate()
 
 M = imaplib.IMAP4_SSL('imap.gmail.com')
 
