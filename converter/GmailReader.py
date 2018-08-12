@@ -66,26 +66,26 @@ def process_mailbox(M):
 
 		msg = email.message_from_bytes(fetchedEmail[0][1])
 
-		# Subject
+		# Email details
 		hdr = email.header.make_header(email.header.decode_header(msg['Subject']))
 		subject = str(hdr).lower()
+		senderName = getSenderName(msg)
+		senderEmail = getSenderEmail(msg)
+		downloadDir = parseSubject(subject)	
+		createDir(downloadDir)	
 
 		for part in msg.walk():
-			print('--------------part------------------')
 			#print(dir(part))
 			if part.get_content_maintype() == 'multipart':
-				# print part.as_string()
+				#print(part.as_string())
 				continue
 			if part.get('Content-Disposition') is None:
-				# print part.as_string()
+				#print(part.as_string())
 				continue
-			senderName = getSenderName(msg)
-			senderEmail = getSenderEmail(msg)
 			origFileName = part.get_filename()
 			if bool(origFileName):
 				print('message with attachment %s', origFileName)
 				fileName = senderName + '-' + NOW_YYYMMDD + '-' + origFileName
-				downloadDir = createDir(subject)	
 				filePath = os.path.join(downloadDir, fileName)
 				if not os.path.isfile(filePath) :
 					print(fileName)
@@ -94,7 +94,6 @@ def process_mailbox(M):
 					fp.close()
 				else:
 					print('error: file(%s) already exist' % (fileName))
-
 
 		print('----------------------------------------------------');
 		print('Message %s: %s' % (msgId, subject))
@@ -117,7 +116,9 @@ def getSenderEmail(message):
 	sender = message['from'].split()[-1]
 	return sender.replace('<', '').replace('>', '')
 
-def getReq(subject):
+def parseSubjectRequirement(subject_):
+
+	subject = subject_.replace('/', '-')
 	IGNORE_WORDS = [ 'fwd:', 'star', '3', '4', '5', 'opening', 'for', 'applicant', '-', 'naukri.com', 'hirist', 'yrs', 'years', 'forward', '/']
 	
 	# Naukri format of subject
@@ -126,9 +127,11 @@ def getReq(subject):
 	if (subject.find(RESUME_SRC_NAUKRI) != -1):
 		subjectToks = subject.split('-')
 		toks = subjectToks[2].split()
+	elif (subject.find(RESUME_SRC_HIRIST) != -1):
+		subjectToks = subject.split('-')
+		toks = subjectToks[1].split()
 	else:
-		toks = subject.split()
-	
+		toks = 'req-unknown'.split()
 
 	x = [i for i in toks if i not in IGNORE_WORDS] 
 	return '-'.join(x)
@@ -136,11 +139,12 @@ def getReq(subject):
 def currentDate():
 	return datetime.datetime.now().strftime ("%Y%m%d")
 	
-
-def createDir(subject):
+def parseSubject(subject):
 
 	source = RESUME_SRC_OTHERS
-	rating = 'unknown'
+
+	# Rating
+	rating = 'not-rated'
 
 	if (subject.find(RESUME_SRC_HIRIST) != -1):
 		source = RESUME_SRC_HIRIST
@@ -155,13 +159,14 @@ def createDir(subject):
 		elif ( subject.find(NAUKRI_RATING_5_STAR) != -1):
 			rating = '5STAR'
 
-	requirement = 'unknown'
-	requirement = getReq(subject)
-	downloadDir = os.path.join(WORK_DIR, source, requirement, rating)
+	# Requirement
+	requirement = parseSubjectRequirement(subject)
 
-	distutils.dir_util.mkpath(downloadDir)
+	# Create dir path
+	return os.path.join(WORK_DIR, source, requirement, rating)
 
-	return downloadDir
+def createDir(dirname):
+	distutils.dir_util.mkpath(dirname)
 
 #----------------------------------------
 # Main
