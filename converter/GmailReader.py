@@ -23,7 +23,7 @@ import datetime
 #
 WORK_DIR = 'downloads'
 
-EMAIL_ACCOUNT = "sales.hueklr@gmail.com"
+EMAIL_ACCOUNT = "cv.hueklr@gmail.com"
 
 # Use 'INBOX' to read inbox.  Note that whatever folder is specified, 
 # after successfully running this script all emails in that folder 
@@ -82,8 +82,12 @@ def process_mailbox(M):
 			if part.get('Content-Disposition') is None:
 				#print(part.as_string())
 				continue
-			origFileName = part.get_filename()
-			if bool(origFileName):
+			origFileName_ = part.get_filename()
+			if bool(origFileName_):
+				origFileName = origFileName_.lower()
+				# Skip images
+				if (origFileName.endswith('jpeg') or origFileName.endswith('jpg') or origFileName.endswith('png')):
+					continue
 				print('message with attachment %s', origFileName)
 				fileName = senderName + '-' + NOW_YYYMMDD + '-' + origFileName
 				filePath = os.path.join(downloadDir, fileName)
@@ -124,14 +128,15 @@ def parseSubjectRequirement(subject_):
 	# Naukri format of subject
 	# 3 star applicant - Naukri.com - Opening for Java Spring Hibernate Developer - Member Technical Staff, Metric Stream Infotech, 2.6 yrs, Bengaluru / Bangalore
 	#
+	toks = 'req-unknown'.split()
 	if (subject.find(RESUME_SRC_NAUKRI) != -1):
 		subjectToks = subject.split('-')
-		toks = subjectToks[2].split()
+		if (len(subjectToks) >= 3):
+			toks = subjectToks[2].split()
 	elif (subject.find(RESUME_SRC_HIRIST) != -1):
 		subjectToks = subject.split('-')
-		toks = subjectToks[1].split()
-	else:
-		toks = 'req-unknown'.split()
+		if (len(subjectToks) >= 2):
+			toks = subjectToks[1].split()
 
 	x = [i for i in toks if i not in IGNORE_WORDS] 
 	return '-'.join(x)
