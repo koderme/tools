@@ -21,8 +21,8 @@ import datetime
 # Dir structure
 # <source>/<req>/<rating>/<sender>-<yyyymmdd>-<actual-filename>
 #
-WORK_DIR = 'downloads'
 
+#EMAIL_ACCOUNT = "sales.hueklr@gmail.com"
 EMAIL_ACCOUNT = "cv.hueklr@gmail.com"
 
 # Use 'INBOX' to read inbox.  Note that whatever folder is specified, 
@@ -178,6 +178,7 @@ def createDir(dirname):
 #----------------------------------------
 
 NOW_YYYMMDD = currentDate()
+WORK_DIR = NOW_YYYMMDD
 
 M = imaplib.IMAP4_SSL('imap.gmail.com')
 
