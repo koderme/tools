@@ -20,6 +20,7 @@ CLOUD_FRAMEWORK  = [ 'aws', 'azure', 'google' ]
 SCRIPTING        = [ 'python', 'ksh', 'bash', 'perl' ]
 ARCHITECT        = [ 'design pattern', 'architect']
 OS               = [ 'windows', 'ios', 'android', 'unix']
+UI               = [ 'angular', 'jsp', 'node.js', 'jquery' ]
 CERTIFICATION    = [ 'certification' ]
 DOT_NET_MATCH_SKILL = [ 'php', 'net', 'c#', 'asp.net', 'windows' ]
 DB               = [ 'db2', 'oracle', 'msqsql', 'mysql', 'plsql', 'pl/sql' ]
@@ -29,7 +30,7 @@ BUILD            = [ 'maven', 'ant', 'teamcity' ]
 CONTAINER        = [ 'docker', 'puppet', 'chef', 'ansible' ]
 OTHERS           = [ 'bluetooth', 'gaming', 'embedded' ]
 
-ALL_FIELDS =  LOCATION + JAVA_BACKEND + JAVA_WEBSERVICES + JAVA_CLOUD + CLOUD_FRAMEWORK + SCRIPTING + ARCHITECT + OS + CERTIFICATION + DOT_NET_MATCH_SKILL + DB + ORM + INTEGRATION + BUILD + CONTAINER + OTHERS
+ALL_FIELDS =  LOCATION + JAVA_BACKEND + JAVA_WEBSERVICES + JAVA_CLOUD + CLOUD_FRAMEWORK + SCRIPTING + ARCHITECT + OS + UI + CERTIFICATION + DOT_NET_MATCH_SKILL + DB + ORM + INTEGRATION + BUILD + CONTAINER + OTHERS
 
 FIELD_SEP = ','
 
