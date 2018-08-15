@@ -9,20 +9,29 @@
 # This is an updated version of the original -- modified to work with Python 3.4.
 #
 import sys
+sys.path.append('..')
+
 import imaplib
 import getpass
 import email
 import email.header
-import datetime
 import os
-import distutils.dir_util
-import datetime
+import logging
+
+from common.Util import *
 
 # Dir structure
 # <source>/<req>/<rating>/<sender>-<yyyymmdd>-<actual-filename>
 #
 
-#EMAIL_ACCOUNT = "sales.hueklr@gmail.com"
+
+#----------------------------------------
+# Constants
+#----------------------------------------
+NOW_YYYMMDD = currentDate()
+WORK_DIR = currentDate()
+
+EMAIL_ACCOUNT = "sales.hueklr@gmail.com"
 EMAIL_ACCOUNT = "cv.hueklr@gmail.com"
 
 # Use 'INBOX' to read inbox.  Note that whatever folder is specified, 
@@ -44,6 +53,12 @@ NAUKRI_RATING_5_STAR = '5 star applicant'
 
 RC_OK = 'OK'
 
+#----------------------------------------
+# setup
+#----------------------------------------
+def setup():
+	logging.basicConfig(level=logging.INFO)
+	NOW_YYYMMDD = currentDate()
 
 def process_mailbox(M):
 
@@ -54,14 +69,14 @@ def process_mailbox(M):
 
 	retCode, emailArr = M.search(None, EMAIL_CATEGORY)
 	if retCode != RC_OK:
-		print("No messages found!")
+		logging.info("No messages found!")
 		return
 
 	for msgId in emailArr[0].split():
 
 		retCode, fetchedEmail = M.fetch(msgId, '(RFC822)')
 		if retCode != RC_OK:
-			print("ERROR getting message", msgId)
+			logging.error("ERROR getting message", msgId)
 			return
 
 		msg = email.message_from_bytes(fetchedEmail[0][1])
@@ -75,12 +90,12 @@ def process_mailbox(M):
 		createDir(downloadDir)	
 
 		for part in msg.walk():
-			#print(dir(part))
+			logging.debug(dir(part))
 			if part.get_content_maintype() == 'multipart':
-				#print(part.as_string())
+				logging.debug(part.as_string())
 				continue
 			if part.get('Content-Disposition') is None:
-				#print(part.as_string())
+				logging.debug(part.as_string())
 				continue
 			origFileName_ = part.get_filename()
 			if bool(origFileName_):
@@ -88,28 +103,27 @@ def process_mailbox(M):
 				# Skip images
 				if (origFileName.endswith('jpeg') or origFileName.endswith('jpg') or origFileName.endswith('png')):
 					continue
-				print('message with attachment %s', origFileName)
+				logging.info('message with attachment %s', origFileName)
 				fileName = senderName + '-' + NOW_YYYMMDD + '-' + origFileName
 				filePath = os.path.join(downloadDir, fileName)
 				if not os.path.isfile(filePath) :
-					print(fileName)
+					logging.info(fileName)
 					fp = open(filePath, 'wb')
 					fp.write(part.get_payload(decode=True))
 					fp.close()
 				else:
-					print('error: file(%s) already exist' % (fileName))
+					logging.error('error: file(%s) already exist' % (fileName))
 
-		print('----------------------------------------------------');
-		print('Message %s: %s' % (msgId, subject))
-		print('Raw Date:', msg['Date'])
+		logging.info('----------------------------------------------------');
+		logging.info('Message %s: %s' % (msgId, subject))
+		logging.info('Raw Date: %s' % (msg['Date']))
 
 		# Now convert to local date-time
 		date_tuple = email.utils.parsedate_tz(msg['Date'])
 		if date_tuple:
 			local_date = datetime.datetime.fromtimestamp(
 				email.utils.mktime_tz(date_tuple))
-			print ("Local Date:", \
-				local_date.strftime("%a, %d %b %Y %H:%M:%S"))
+			logging.info("Local Date: " + local_date.strftime("%a, %d %b %Y %H:%M:%S"))
 
 def getSenderName(message):
 	senderToks = message['from'].split();
@@ -141,9 +155,6 @@ def parseSubjectRequirement(subject_):
 	x = [i for i in toks if i not in IGNORE_WORDS] 
 	return '-'.join(x)
 
-def currentDate():
-	return datetime.datetime.now().strftime ("%Y%m%d")
-	
 def parseSubject(subject):
 
 	source = RESUME_SRC_OTHERS
@@ -170,37 +181,33 @@ def parseSubject(subject):
 	# Create dir path
 	return os.path.join(WORK_DIR, source, requirement, rating)
 
-def createDir(dirname):
-	distutils.dir_util.mkpath(dirname)
 
 #----------------------------------------
 # Main
 #----------------------------------------
-
-NOW_YYYMMDD = currentDate()
-WORK_DIR = NOW_YYYMMDD
+setup()
 
 M = imaplib.IMAP4_SSL('imap.gmail.com')
 
 try:
 	retCode, data = M.login(EMAIL_ACCOUNT, getpass.getpass())
 except imaplib.IMAP4.error:
-	print ("LOGIN FAILED!!! ")
+	logging.error("LOGIN FAILED!!! ")
 	sys.exit(1)
 
-print(retCode, data)
+logging.debug(retCode, data)
 
 retCode, mailboxes = M.list()
 if retCode == RC_OK:
-	print("Mailboxes:")
-	print(mailboxes)
+	logging.debug("Mailboxes:")
+	logging.debug(mailboxes)
 
 retCode, data = M.select(EMAIL_FOLDER)
 if retCode == RC_OK:
-	print("Processing mailbox...\n")
+	logging.info("Processing mailbox...\n")
 	process_mailbox(M)
 	M.close()
 else:
-	print("ERROR: Unable to open mailbox ", retCode)
+	logging.error("ERROR: Unable to open mailbox ", retCode)
 
 M.logout()
