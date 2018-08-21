@@ -2,13 +2,11 @@
 # Convert to Resume
 
 # Resume
-#   Filename
-#   DocType
-#   SkillMap  (key=string, value=true/false)
-#   api
-#    hasSkill(string)
-#    hasSkill(string[])
-
+#   projects -- list
+#   employment -- list
+#   others -- list
+#   personal -- dictionary
+#
 # ResumeParser
 #   Resume parse(file)
 #   Resume parse(file, type)
