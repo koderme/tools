@@ -29,7 +29,6 @@ from common.Util import *
 # Constants
 #----------------------------------------
 NOW_YYYMMDD = currentDate()
-WORK_DIR = currentDate()
 
 EMAIL_ACCOUNT = "sales.hueklr@gmail.com"
 EMAIL_ACCOUNT = "cv.hueklr@gmail.com"
@@ -179,7 +178,8 @@ def parseSubject(subject):
 	requirement = parseSubjectRequirement(subject)
 
 	# Create dir path
-	return os.path.join(WORK_DIR, source, requirement, rating)
+	WORK_DIR='downloads/' + currentDate()
+	return os.path.join(WORK_DIR, source)
 
 
 #----------------------------------------
