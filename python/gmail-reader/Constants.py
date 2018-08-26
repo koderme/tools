@@ -63,7 +63,7 @@ NAUKRI_RATING = MyEnum(
 # Dir 
 #----------------------------------------
 DIRS = MyEnum(
-	DOWNLOAD_DIR = './ddd',
+	DOWNLOAD_DIR = './downloads',
 	LOG_DIR = '/var/tmp/gmail/'
 	)
 

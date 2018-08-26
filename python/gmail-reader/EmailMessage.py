@@ -17,11 +17,11 @@ class EmailMessage:
 		self.attachments = []
 
 	def __str__(self):
-		SEP = ','
-		return '--tbd--'
-		return 'messageId:' + self.messageId + SEP + \
-		'receiveDate:' + self.receiveDate + SEP + \
-		'subject:' + self.subject + SEP + \
-		'body:' + self.body + SEP + \
-		'senderName:' + self.senderName + SEP + \
-		'senderEmailId:' + 'tbd'
+		SEP = '\n\t\t'
+		return SEP + \
+		'messageId = ' + str(self.messageId) + SEP + \
+		'receiveDate = ' + str(self.receiveDate) + SEP + \
+		'subject = ' + self.subject + SEP + \
+		'body = ' + self.body + SEP + \
+		'senderName = ' + self.senderName + SEP + \
+		'senderEmailId = ' + self.senderEmailId

@@ -56,8 +56,7 @@ class EmailProcessor:
 	def getMailBoxes():
 		retCode, mailboxes = self.handler.list()
 		if retCode == RC_CODE.OK.name:
-			logging.debug("Mailboxes:")
-			logging.debug(mailboxes)
+			logging.debug("Mailboxes:" + mailboxes)
 
 	#--------------------------------------------
     # Process the emails
@@ -67,7 +66,10 @@ class EmailProcessor:
 		retCode, data = self.handler.select(emailBox)
 		if retCode == RC_CODE.OK.name:
 			logging.info("Fetching emails from : " + emailBox)
-			self.processEmails(emailCategory)
+			emailMesgs = self.processEmails(emailCategory)
+			logging.info('----------------------------------------------------');
+			logging.info('Summary')
+			logging.info('processed %d messages' % (len(emailMesgs)))
 		else:
 			logging.error("Unable to open mailbox ", retCode)
 
@@ -88,7 +90,8 @@ class EmailProcessor:
 		emailMesgs = []
 		for msgId in emailArr[0].split():
 
-			logging.info('processing : ' + str(msgId))
+			logging.info('....................................................');
+			logging.info('processing email : ' + str(msgId))
 			emailMesg = EmailMessage()
 			emailMesgs.append(emailMesg)
 
@@ -107,10 +110,11 @@ class EmailProcessor:
 			emailMesg.senderName = EmailParseLogic.getSenderName(msg)
 			emailMesg.senderEmailId = EmailParseLogic.getSenderEmail(msg)
 
+
 			# Loop to process part of each email
 			for part in msg.walk():
 
-				logging.debug(' processing part of email:' + str(part))
+				logging.debug('...processing part of email:' + str(part))
 				if part.get_content_maintype() == EMAIL_OTHERS.MULTIPART:
 					logging.debug(part.as_string())
 					continue
@@ -121,8 +125,9 @@ class EmailProcessor:
 
 				EmailParseLogic.downloadAttachment(part, emailMesg)
 
-			logging.info('----------------------------------------------------');
-			logging.info(str(emailMesg))
+			logging.info('...email details : ' + str(emailMesg))
+
+		return emailMesgs
 
 #-------------------------------------------------
 #
@@ -133,6 +138,5 @@ def convertToLocalDateTime(inDate):
 	if date_tuple:
 		local_date = datetime.datetime.fromtimestamp(
 			email.utils.mktime_tz(date_tuple))
-		logging.info("Local Date: " + local_date.strftime("%a, %d %b %Y %H:%M:%S"))
 
 	return local_date

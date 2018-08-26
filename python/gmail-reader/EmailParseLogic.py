@@ -51,15 +51,12 @@ class EmailParseLogic:
 	def getSenderEmail(message):
 		sender = message['from'].split()[-1]
 		s1 = sender.replace("<", "").replace(">", "")
-		logging.info('sender :' + sender)
-		logging.info('sender :' + s1)
 		return s1
 
 	@staticmethod
 	def downloadAttachment(part, emailMesg):
 		subAttr = EmailParseLogic.parseSubject(emailMesg.subject)
 	
-		logging.info('subAttr : ' + str(subAttr))	
 		toks = [DIRS.DOWNLOAD_DIR , NOW_YYYMMDD,  subAttr['source'] ]
 		downloadDir = '/'.join(toks)
 		Utils.createDir(downloadDir)	
@@ -69,17 +66,16 @@ class EmailParseLogic:
 			origFileName = origFileName_.lower()
 
 			# Skip images
-			if (origFileName.endswith(FILE_EXTN.JPG) or
-				origFileName.endswith(FILE_EXTN.JPEG) or
-				origFileName.endswith(FILE_EXTN.PNG)):
-				logging.info('skipping attachment other than pdf/doc*')
+			if (not (origFileName.endswith(FILE_EXTN.DOC) or
+				origFileName.endswith(FILE_EXTN.DOCX) or
+				origFileName.endswith(FILE_EXTN.PDF))):
+				logging.info('...skipping attachment other than pdf/doc*')
 				return
 
-			logging.info('downloading attachment : %s', origFileName)
 			fileName = emailMesg.senderName + '-' + NOW_YYYMMDD + '-' + origFileName
 			filePath = os.path.join(downloadDir, fileName)
 			if not os.path.isfile(filePath) :
-				logging.info(fileName)
+				logging.info('...downloading attachment : %s', origFileName)
 				fp = open(filePath, 'wb')
 				fp.write(part.get_payload(decode=True))
 				fp.close()
