@@ -27,7 +27,7 @@ from EmailProcessor import *
 logging.basicConfig(level=logging.INFO)
 DOWNLOAD_DIR = './downloads'
 
-mail = EmailProcessor(EMAIL_ID.SALES_HUEKLR_GMAIL)
+mail = EmailProcessor(EMAIL_ID.CV_HUEKLR_GMAIL)
 
 mail.login()
 mail.process(

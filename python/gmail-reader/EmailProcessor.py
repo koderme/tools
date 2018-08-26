@@ -25,7 +25,6 @@ from EmailMessage import *
 class EmailProcessor:
 	def __init__(self, emailId):
 		self.emailId = emailId
-		print('constructor')
 
 	#--------------------------------------------
     # Login
@@ -48,7 +47,7 @@ class EmailProcessor:
 	def logout(self):
 		self.handler.close()
 		self.handler.logout()
-		print('logout')
+		logging.info('logout')
 
 	#--------------------------------------------
     # Get mail boxes
