@@ -14,13 +14,14 @@ from docx import Document
 
 LOCATION         = [ 'bengaluru', 'banglore', 'mumbai', 'hyderabad', 'chennai', 'gurgaon', 'noida', 'pune', 'delhi', 'navi mumbai' ]
 JAVA_BACKEND     = [ 'java', 'spring', 'j2ee' ]
+C_BACKEND     = [ 'cpp', 'c++']
 JAVA_WEBSERVICES = [ 'soap', 'rest', 'webservices' ]
 JAVA_CLOUD       = [ 'spring boot', 'cloud', 'microservices' ]
 CLOUD_FRAMEWORK  = [ 'aws', 'azure', 'google' ]
-SCRIPTING        = [ 'python', 'ksh', 'bash', 'perl' ]
+SCRIPTING        = [ 'python', 'django', 'flask', 'orm', 'ksh', 'bash', 'perl' ]
 ARCHITECT        = [ 'design pattern', 'architect']
 OS               = [ 'windows', 'ios', 'android', 'unix']
-UI               = [ 'angular', 'react', 'jsp', 'servlet', 'node.js', 'jquery', 'bootstrap', 'css', 'javascript', 'xml', 'mvc', 'ruby' ]
+UI               = [ 'angular', 'react', 'jsp', 'servlet', 'node.js', 'jquery', 'bootstrap', 'css', 'javascript', 'xml', 'mvc', 'ruby', 'html' ]
 CERTIFICATION    = [ 'certification' ]
 DOT_NET_MATCH_SKILL = [ 'php', 'net', 'c#', 'asp.net', 'windows' 'visual studio', 'xamarin', 'mssql' ]
 DB               = [ 'db2', 'oracle', 'msqsql', 'mysql', 'plsql', 'pl/sql', 'jdbc' ]
@@ -30,10 +31,16 @@ BUILD            = [ 'maven', 'ant', 'teamcity' ]
 CONTAINER        = [ 'docker', 'puppet', 'chef', 'ansible' ]
 OTHERS1          = [ 'bluetooth', 'gaming', 'embedded', 'algorithm' ]
 OTHERS2          = [ 'risk', 'escalation', 'mentoring', 'coaching', 'leader', 'csat', 'head' ]
+OTHERS2          = [ 'tbd', 'tbd' ]
+
+#OTHERS3 = [ 'digital', 'fmcg', 'breverage', 'cosmetic', 'retail', 'commerce', 'javascript', 'web', 'social', 'MOAT', 'DCM', 'DBM', 'salesforce', 'analyst', 'architect', 'certification', 'delivery', 'planning', 'budget', 'process' ]
+
+
 
 ALL_FIELDS = \
 LOCATION         + \
 JAVA_BACKEND     + \
+C_BACKEND     + \
 JAVA_WEBSERVICES + \
 JAVA_CLOUD       + \
 CLOUD_FRAMEWORK  + \
@@ -50,7 +57,6 @@ BUILD            + \
 CONTAINER        + \
 OTHERS1          + \
 OTHERS2         
-
 
 FIELD_SEP = ','
 
@@ -71,13 +77,15 @@ def parseFile(inFile):
 		return ''
 
 def findMatchingCv(inDir, skillArr):
-	colHead = [ 'src', 'fpath' ] + ALL_FIELDS + [ 'match']
+	colHead = [ 'date', 'src', 'fpath' ] + ALL_FIELDS + [ 'match']
 	print(FIELD_SEP.join(colHead))
 	for root, _, fileArr in os.walk(inDir):
 		for rFile in fileArr: 
 			fpath = os.path.join(root, rFile)
 			fpathSplitted = fpath.split('/')
-			l2 = fpathSplitted[-2:]
+
+			# retain last 3
+			l2 = fpathSplitted[-3:]
 			result = FIELD_SEP.join(l2)
 			
 			skillMatchCount = 0	
@@ -90,11 +98,18 @@ def findMatchingCv(inDir, skillArr):
 						skillMatchCount += 1
 					else:
 						result += FIELD_SEP + '0';
+
+				# Extract experience
+				index = stringCV.find('year')
+				
 			result += FIELD_SEP + str(skillMatchCount)
 			print(result)
 
 
-dir1='downloads'
+dir1='downloads/20180904'
+dir1='downloads/scriptfi/potential'
+dir1='downloads/scriptfi/batch-2'
+dir1='downloads/20180914'
 findMatchingCv(dir1, ALL_FIELDS)
 
 

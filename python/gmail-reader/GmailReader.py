@@ -1,13 +1,5 @@
 #!/usr/bin/python3.5
-#
-# Very basic example of using Python 3 and IMAP to iterate over emails in a
-# gmail folder/label.  This code is released into the public domain.
-#
-# This script is example code from this blog post:
-# http://www.voidynullness.net/blog/2013/07/25/gmail-email-with-python-via-imap/
-#
-# This is an updated version of the original -- modified to work with Python 3.4.
-#
+
 import sys
 sys.path.append('..')
 
@@ -19,10 +11,7 @@ import os
 import logging
 
 from common.Util import *
-
-# Dir structure
-# <source>/<req>/<rating>/<sender>-<yyyymmdd>-<actual-filename>
-#
+from Constants import *
 
 
 #----------------------------------------
@@ -30,17 +19,10 @@ from common.Util import *
 #----------------------------------------
 NOW_YYYMMDD = currentDate()
 
-EMAIL_ACCOUNT = "sales.hueklr@gmail.com"
-EMAIL_ACCOUNT = "cv.hueklr@gmail.com"
 
 # Use 'INBOX' to read inbox.  Note that whatever folder is specified, 
 # after successfully running this script all emails in that folder 
 # will be marked as read.
-EMAIL_FOLDER = "INBOX"
-
-EMAIL_CATEGORY = 'ALL'
-EMAIL_CATEGORY = '(UNSEEN)'
-
 RESUME_SRC_HIRIST = 'hirist'
 RESUME_SRC_NAUKRI = 'naukri'
 RESUME_SRC_OTHERS = 'others'
@@ -66,7 +48,7 @@ def process_mailbox(M):
 	For the sake of this example, print some headers.
 	"""
 
-	retCode, emailArr = M.search(None, EMAIL_CATEGORY)
+	retCode, emailArr = M.search(None, EMAIL_CATEGORY.UNREAD)
 	if retCode != RC_OK:
 		logging.info("No messages found!")
 		return
@@ -146,10 +128,6 @@ def parseSubjectRequirement(subject_):
 		subjectToks = subject.split('-')
 		if (len(subjectToks) >= 3):
 			toks = subjectToks[2].split()
-	elif (subject.find(RESUME_SRC_HIRIST) != -1):
-		subjectToks = subject.split('-')
-		if (len(subjectToks) >= 2):
-			toks = subjectToks[1].split()
 
 	x = [i for i in toks if i not in IGNORE_WORDS] 
 	return '-'.join(x)
@@ -161,9 +139,7 @@ def parseSubject(subject):
 	# Rating
 	rating = 'not-rated'
 
-	if (subject.find(RESUME_SRC_HIRIST) != -1):
-		source = RESUME_SRC_HIRIST
-	elif ( subject.find(RESUME_SRC_NAUKRI) != -1):
+	if ( subject.find(RESUME_SRC_NAUKRI) != -1):
 		source = RESUME_SRC_NAUKRI
 		if ( subject.find(NAUKRI_RATING_2_STAR) != -1):
 			rating = '2STAR'
@@ -190,7 +166,7 @@ setup()
 M = imaplib.IMAP4_SSL('imap.gmail.com')
 
 try:
-	retCode, data = M.login(EMAIL_ACCOUNT, getpass.getpass())
+	retCode, data = M.login(EMAIL_ID.CV_HUEKLR_GMAIL, getpass.getpass())
 except imaplib.IMAP4.error:
 	logging.error("LOGIN FAILED!!! ")
 	sys.exit(1)
@@ -202,12 +178,12 @@ if retCode == RC_OK:
 	logging.debug("Mailboxes:")
 	logging.debug(mailboxes)
 
-retCode, data = M.select(EMAIL_FOLDER)
+retCode, data = M.select(EMAIL_FOLDER.INBOX.name)
 if retCode == RC_OK:
-	logging.info("Processing mailbox...\n")
+	logging.info("Fetching emails from : " + EMAIL_FOLDER.INBOX.name)
 	process_mailbox(M)
 	M.close()
 else:
-	logging.error("ERROR: Unable to open mailbox ", retCode)
+	logging.error("Unable to open mailbox ", retCode)
 
 M.logout()
