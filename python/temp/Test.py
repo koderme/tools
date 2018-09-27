@@ -11,9 +11,11 @@
 import sys
 sys.path.append('..')
 
+from PIL import Image
+import pytesseract
 import logging
+import argparse
 from common.Utils import *
-from EmailMessage import *
 
 
 
@@ -43,17 +45,29 @@ def setup():
 	logging.basicConfig(level=logging.INFO)
 
 
+def parseArgs(xx):
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-o','--open-file', help='file to be opended', required=False)
+	parser.add_argument('-s','--save-file', help='file to be saved', required=False)
+
+	args = parser.parse_args()
+
+	print("print args----")
+	print(args.open_file)
+	print(args.save_file)
+
+def itotext():
+	filename='image-to-text.JPG'
+	text = pytesseract.image_to_string(Image.open(filename))
+	print(text)
+
 #----------------------------------------
 # Main
 #----------------------------------------
 setup()
+parseArgs(sys.argv)
 
-logging.info("test %s", "hello world")
-MyClass.m1()
-em = EmailMessage()
-logging.info('em : ' + str(em))
-logging.info('source : ' + CV_SOURCE.naukri.name);
-logging.info('source : ' + NAUKRI_RATING.S2);
-logging.info('source : ' + FILE_EXTN.JPG);
+itotext()
+
 
 

@@ -25,3 +25,12 @@ sudo pip3 install python-docx
 
 
 
+# Install image to text 
+sudo pip3 install pytesseract
+
+# Install imaging lib
+sudo pip3 install Pillow
+
+# Install pdf2image
+sudo pip3 install pdf2image
+
