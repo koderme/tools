@@ -15,6 +15,10 @@ class Utils:
 	def createDir(dirname):
 		distutils.dir_util.mkpath(dirname)
 
+	def nameWithoutExtn(filename):
+		l=len(filename)-4
+		return filename[0:l]
+
 #----------------------------------------
 # MyEnum
 #----------------------------------------

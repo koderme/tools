@@ -4,6 +4,9 @@
 
 import sys
 import glob
+import tempfile
+from pathlib import Path
+
 sys.path.append('..')
 
 import os
@@ -19,21 +22,7 @@ from common.Utils import *
 #----------------------------------------
 # Constants
 #----------------------------------------
-class MyClass:
-
-	@staticmethod
-	def m1():
-		logging.info('m1()')
-
-def parseSubject():
-
-	subAttr = {
-		'source' : CV_SOURCE.others.name,
-		'rating' : 'not-rated',
-		'req'    : 'none',
-	}
-
-	return subAttr
+OutputExtension = '.rtf'
 
 #----------------------------------------
 # setup
@@ -50,31 +39,30 @@ def parseArgs(xx):
 
 	return args
 
-def imageToText(inFiles):
+def imageToText(inFiles, outFilepath):
 	text = ''
-	outTextFilepath=''
 	for f in inFiles:
-		outTextFilepath=f + '.txt'
 		text += pytesseract.image_to_string(Image.open(f))
 
-	logging.info("writing to " + outTextFilepath)
-	f= open(outTextFilepath, "w+")
+	logging.debug("writing to " + outFilepath)
+	f= open(outFilepath, "w+")
 	f.write(text)
 	f.close()
+	logging.info("created text file: " + outFilepath)
 
 #--------------------------------------------
 # Convert pdf to text
 #--------------------------------------------
-def pdfToText(pdfFilepath):
+def pdfToText(pdfFilepath, outFilepath):
 
 	# Convert to images
 	imageFileList = pdfToImage(pdfFilepath)
 
-	imageToText(imageFileList);
+	imageToText(imageFileList, outFilepath);
 
 	# Remove imageFileList tbd
 	for f in imageFileList:
-		logging.info('removing ' + f)
+		logging.debug('removing ' + f)
 		os.remove(f);
 
 #--------------------------------------------
@@ -86,24 +74,38 @@ def pdfToImage(pdfFilepath):
 	logging.info('converting pdf to image...')
 	imageFileList = []
 	for page in pages:
-		outFilepath=pdfFilepath + str(i) + '.jpg'
-		imageFileList.append(outFilepath)
-		page.save(outFilepath, 'JPEG')
+		tmpfile = tempfile.NamedTemporaryFile(delete=False)
+		imageFileList.append(tmpfile.name)
+		page.save(tmpfile.name, 'JPEG')
 		i=i+1
 
+	logging.debug('file list: ' + str(imageFileList))
+	
 	return imageFileList
 
 
+#--------------------------------------------
+# Convert image/pdf to text
+#--------------------------------------------
 def convertToText(args):
 
 	for filepath in glob.glob(args.in_dir + '/' + '*.*'):
 
+		outFilepath = Utils.nameWithoutExtn(filepath) + OutputExtension
+
 		logging.info('-----------------------')
-		logging.info('processing ' + filepath)
+		logging.info('processing : ' + filepath)
+
+		# Skip file that have been converted
+		tmpPath = Path(outFilepath)
+		if tmpPath.is_file():
+			logging.info("file already converted...skipping")
+			continue
+
 		filepathLower=filepath.lower()
 
 		if (filepathLower.lower().endswith('pdf')):
-			pdfToText(filepath)
+			pdfToText(filepath, outFilepath)
 		elif (filepathLower.endswith("jpeg") or
 				filepathLower.endswith('jpg') or
 				filepathLower.endswith('png') or
@@ -111,7 +113,6 @@ def convertToText(args):
 
 			logging.info('converting image to text ...')
 			text = pytesseract.image_to_string(Image.open(filepath))
-			outFilepath = filepath + '.txt'
 			f= open(outFilepath, "w+")
 			f.write(text)
 			f.close()
