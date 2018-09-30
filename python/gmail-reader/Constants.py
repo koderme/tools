@@ -12,7 +12,6 @@ from common.Utils import *
 #----------------------------------------
 # Email related
 #----------------------------------------
-
 EMAIL_FOLDER = Enum('', 'INBOX TBD')
 
 EMAIL_OTHERS = MyEnum(
@@ -37,7 +36,6 @@ EMAIL_ID =  MyEnum(
 #----------------------------------------
 # File types
 #----------------------------------------
-
 FILE_EXTN = MyEnum(
 	JPG  = 'jpg',
 	JPEG = 'jpeg',

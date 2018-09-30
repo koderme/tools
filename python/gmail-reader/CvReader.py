@@ -3,34 +3,52 @@
 import docx
 import os
 import textract
-
 from docx import Document
+
 from SkillSet import *
 
+import sys
+sys.path.append('..')
+from common.Utils import *
+from Constants import *
 
 # This tool is expected to scan the document, convert into below format
 # name       |source | req        |rating| <s> | <s> | <s> | ... | match
 # John White |naukri | java-spring| 3S   | 1   | 1   | 0   |     | <sum>
 #
 
+State = Enum('', 'processed errored')
+Tags = Enum('', 'srcfile content retcode')
+
 FIELD_SEP = ','
 
-
-def parseDocx(filename):
-	doc = docx.Document(filename)
+#----------------------------------------
+# Extracts text from docx
+#----------------------------------------
+def extractTextFromDocx(inFilepath):
+	doc = docx.Document(inFilepath)
 	fullText = []
 	for para in doc.paragraphs:
-		fullText.append(para.text)
+		fullText.append(para.content)
 	return '\n'.join(fullText).lower()
 
-def parseFile(inFile):
-	try:
-		#return textract.process(inFile).decode('utf-8').lower()
-		return textract.process(inFile).decode().lower()
-	except:
-		print("Error extracting text from (%s)" % (inFile)) 
-		return ''
+#----------------------------------------
+# Returns output text filepath. 
+# The name is derived as follows:
+#   prefix + extn 
+#     prefix = content of inPath with [0]th token replaced with 'processed'
+#     suffix = orig suffix replaced with 'txt'
+#----------------------------------------
+def getOuputTextFilename(inFilepath):
+	outFilepath = Utils.nameWithoutExtn(inFilepath) + '.txt'
+	toks = outFilepath.split('/')
+	toks[0] = State.processed.name
+	return '/'.join(toks)
 
+
+#----------------------------------------
+# Generates report with specified skills
+#----------------------------------------
 def findMatchingCv(inDir, skillArr):
 	colHead = [ 'date', 'src', 'fpath' ] + ALL_FIELDS + [ 'match']
 	print(FIELD_SEP.join(colHead))
@@ -61,7 +79,100 @@ def findMatchingCv(inDir, skillArr):
 			print(result)
 
 
-dir1='downloads/20180925'
-findMatchingCv(dir1, ALL_FIELDS)
+#----------------------------------------
+#----------------------------------------
+class CvParser:
+	def __init__(self, inFilepath):
+		self.inFilepath = inFilepath
+		self.setDirs()
+	
+	#----------------------------------------
+	# Returns dict with corr's entries for 
+	#  processed, errrored dirs
+	#----------------------------------------
+	def setDirs(self):
+		toks = self.inFilepath.split('/')
+		del toks[len(toks)-1]
+
+		toks[0] = State.processed.name
+		self.processedDir = '/'.join(toks)
+
+		toks[0] = State.errored.name
+		self.erroredDir = '/'.join(toks)
+
+	#----------------------------------------
+	# Extracts text from docx/doc/pdf
+	#----------------------------------------
+	def extract(self):
+		logging.info('parsing ...')
+		content = ''
+		retcode = RC_CODE.ERROR.name
+		try:
+			content = textract.process(self.inFilepath).decode().lower()
+			retcode = RC_CODE.OK.name
+		except:
+			content = "Error extracting content from (%s)" % (self.inFilepath),
+
+		self.content = content
+		self.retcode = retcode
+		logging.info('parsing result : ' + retcode)
+
+	#----------------------------------------
+	# Does the post processing
+	#  moving orig file to processed-dir / errored-dir
+	#  creating text file in processed-dir 
+	#----------------------------------------
+	def postProcess(self):
+		logging.debug('retcode:' + self.retcode)
+		if self.retcode == RC_CODE.OK.name:
+			Utils.move(self.inFilepath, self.processedDir)
+
+			self.outFilepath = getOuputTextFilename(self.inFilepath)
+			logging.info('writing content to ' + self.outFilepath)
+			f = open(self.outFilepath, "w+")
+			f.write(self.content)
+			f.close()
+		else:
+			Utils.move(self.inFilepath, self.erroredDir)
+
+	#----------------------------------------
+	# Validates the extension
+	#----------------------------------------
+	def isValid(inFilepath):
+		if ( inFilepath.endswith("docx") or
+				inFilepath.endswith('doc') or
+				inFilepath.endswith('pdf') ):
+			return True
+		else:
+			return False
+	
+#----------------------------------------
+# Converts files from pdf/docx/doc to text
+#----------------------------------------
+	def convertToText(inDir):
+		for root, _, fileArr in os.walk(inDir):
+			for rFile in fileArr: 
+
+				Utils.sleep(1000)
+
+				logging.info('------------------------------')
+				logging.info('processing : ' + rFile)
+				fpath = os.path.join(root, rFile)
+
+				if ( CvParser.isValid(rFile)):
+					cvReader = CvParser(fpath) 
+					cvReader.extract()
+					cvReader.postProcess()
+				else:
+					logging.warn('unknown extension :' + rFile + ' skipping ...')
+
+			
+
+#----------------------------------------
+# Main
+#----------------------------------------
+logging.basicConfig(level=logging.INFO)
+dir1='temp'
+CvParser.convertToText(dir1)
 
 
