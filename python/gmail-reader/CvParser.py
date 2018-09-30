@@ -84,6 +84,7 @@ def findMatchingCv(inDir, skillArr):
 class CvParser:
 	def __init__(self, inFilepath):
 		self.inFilepath = inFilepath
+		logging.info('xxxx:' + self.inFilepath + ':')
 		self.setDirs()
 	
 	#----------------------------------------
@@ -139,6 +140,16 @@ class CvParser:
 	# Validates the extension
 	#----------------------------------------
 	def isValid(inFilepath):
+		# Check existence
+		logging.info('xxxx:' + inFilepath + ':')
+		if not os.path.isfile(inFilepath):
+			logging.error("Invalid in file :" + inFilepath)
+			return False
+
+		if os.path.isdir(inFilepath):
+			logging.error("Is a dir :" + inFilepath)
+			return False
+
 		if ( inFilepath.endswith("docx") or
 				inFilepath.endswith('doc') or
 				inFilepath.endswith('pdf') ):
@@ -150,29 +161,37 @@ class CvParser:
 # Converts files from pdf/docx/doc to text
 #----------------------------------------
 	def convertToText(inDir):
+		if not os.path.isdir(inDir):
+			logging.error("Invalid dir :" + inDir)
+			exit
+
+		summary =  {'valid' : 0, 'invalid' : 0}
 		for root, _, fileArr in os.walk(inDir):
 			for rFile in fileArr: 
 
-				Utils.sleep(1000)
+				#Utils.sleep(1000)
 
 				logging.info('------------------------------')
 				logging.info('processing : ' + rFile)
 				fpath = os.path.join(root, rFile)
 
-				if ( CvParser.isValid(rFile)):
-					cvReader = CvParser(fpath) 
-					cvReader.extract()
-					cvReader.postProcess()
+				if ( CvParser.isValid(fpath)):
+					summary['valid'] += 1;
+					cvParser = CvParser(fpath) 
+					cvParser.extract()
+					cvParser.postProcess()
 				else:
+					summary['invalid'] += 1;
 					logging.warn('unknown extension :' + rFile + ' skipping ...')
 
+		logging.info('summary:' + str(summary))
 			
 
 #----------------------------------------
 # Main
 #----------------------------------------
-logging.basicConfig(level=logging.INFO)
-dir1='temp'
-CvParser.convertToText(dir1)
+#logging.basicConfig(level=logging.INFO)
+#dir1='temp'
+#CvParser.convertToText(dir1)
 
 

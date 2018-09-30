@@ -9,7 +9,7 @@ sys.path.append('..')
 from common.Utils import *
 from Constants import *
 from EmailProcessor import *
-from EmailProcessor import *
+from CvParser import *
 
 # This program is intended to 
 #    -- read specified email box
@@ -23,7 +23,8 @@ from EmailProcessor import *
 #----------------------------------------
 def parseArgs(progArgs):
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-a','--action', help='download|parse', required=True)
+	parser.add_argument('-a','--action', help='download|extract', required=True)
+	parser.add_argument('-d','--dir', help='dir', required=True)
 	parser.add_argument('-s','--skills', help='skills', required=False)
 
 	return parser.parse_args()
@@ -34,36 +35,37 @@ def parseArgs(progArgs):
 def	doAction(cmdArgs):
 
 	if (cmdArgs.action == 'download'):
-		doDownload()
+		doDownload(cmdArgs)
 
 	if (cmdArgs.action == 'parse'):
-		doParse()
+		doParse(cmdArgs)
 
 #----------------------------------------
 # Specific action
 #----------------------------------------
-def doDownload():
-	logging.info('doing action download')
+def doDownload(cmdArgs):
+	logging.info('action:' +cmdArgs.action)
 	mail = EmailProcessor(EMAIL_ID.SALES_HUEKLR_GMAIL)
 
 	mail.login()
 	mail.process(
 		EMAIL_FOLDER.INBOX.name,
 		EMAIL_CATEGORY.UNREAD,
-		DOWNLOAD_DIR)
+		cmdArgs.dir)
 	mail.logout()
 
 #----------------------------------------
 # Specific action
 #----------------------------------------
-def doParse():
-	print('extracting meta...');
+def doParse(cmdArgs):
+	logging.info('action:' +cmdArgs.action)
+	CvParser.convertToText(cmdArgs.dir)
+	
 
 #----------------------------------------
 # Main
 #----------------------------------------
 logging.basicConfig(level=logging.INFO)
-DOWNLOAD_DIR = './downloads'
 
 cmdArgs = parseArgs(sys.argv);
 
