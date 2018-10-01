@@ -9,7 +9,7 @@ sys.path.append('..')
 from common.Utils import *
 from Constants import *
 from EmailProcessor import *
-from CvParser import *
+from DocConverter import *
 
 # This program is intended to 
 #    -- read specified email box
@@ -45,7 +45,7 @@ def	doAction(cmdArgs):
 #----------------------------------------
 def doDownload(cmdArgs):
 	logging.info('action:' +cmdArgs.action)
-	mail = EmailProcessor(EMAIL_ID.SALES_HUEKLR_GMAIL)
+	mail = EmailProcessor(EMAIL_ID.CV_HUEKLR_GMAIL)
 
 	mail.login()
 	mail.process(
@@ -59,7 +59,7 @@ def doDownload(cmdArgs):
 #----------------------------------------
 def doParse(cmdArgs):
 	logging.info('action:' +cmdArgs.action)
-	CvParser.convertToText(cmdArgs.dir)
+	DocConverter.convertToText(cmdArgs.dir)
 	
 
 #----------------------------------------

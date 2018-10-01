@@ -81,7 +81,7 @@ def findMatchingCv(inDir, skillArr):
 
 #----------------------------------------
 #----------------------------------------
-class CvConverter:
+class DocConverter:
 	def __init__(self, inFilepath):
 		self.inFilepath = inFilepath
 		logging.info('xxxx:' + self.inFilepath + ':')
@@ -175,9 +175,9 @@ class CvConverter:
 				logging.info('processing : ' + rFile)
 				fpath = os.path.join(root, rFile)
 
-				if ( CvConverter.isValid(fpath)):
+				if ( DocConverter.isValid(fpath)):
 					summary['valid'] += 1;
-					cvParser = CvConverter(fpath) 
+					cvParser = DocConverter(fpath) 
 					cvParser.extract()
 					cvParser.postProcess()
 				else:
@@ -192,6 +192,6 @@ class CvConverter:
 #----------------------------------------
 #logging.basicConfig(level=logging.INFO)
 #dir1='temp'
-#CvConverter.convertToText(dir1)
+#DocConverter.convertToText(dir1)
 
 
