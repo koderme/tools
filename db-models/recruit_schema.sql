@@ -48,6 +48,7 @@ DROP TABLE IF EXISTS recruit.requirement ;
 
 CREATE TABLE IF NOT EXISTS recruit.requirement (
   requirement_id     BIGINT NOT NULL,
+  requirement_code   VARCHAR(100) NOT NULL,
   client             VARCHAR(100) NOT NULL,
   marketplace        VARCHAR(100) NOT NULL,
   location_code      VARCHAR(100) NOT NULL,
@@ -72,10 +73,11 @@ DROP TABLE IF EXISTS recruit.requirement_jd ;
 
 CREATE TABLE IF NOT EXISTS recruit.requirement_jd (
   requirement_id    BIGINT NOT NULL,
-  req_jd_type       VARCHAR(20) NOT NULL,
-  req_jd_desc       VARCHAR(250) NOT NULL,
+  requirement_jd_id BIGINT NOT NULL,
+  req_jd_type       VARCHAR(50) NOT NULL, -- mandatory, optional, responsibilities
+  req_jd_desc       VARCHAR(500) NOT NULL,
   update_date      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (requirement_id, req_jd_type),
+  PRIMARY KEY (requirement_id, requirement_jd_id),
 
   CONSTRAINT fk_requirement_jd_ri
     FOREIGN KEY (requirement_id)
