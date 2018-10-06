@@ -9,6 +9,7 @@ from common.Utils import *
 
 
 CvTag =  Enum('', 'summary skill role project employer certification personal')
+NewLine = '\n'
 
 #---------------------------------------------------
 # CvSection represents 1 section of Cv.
@@ -51,7 +52,20 @@ class CvSection:
 		for sentence in self.sentenceList:
 			logging.info('parsing :' + sentence)
 
+	def __str__(self):
+		str1 = '----------------------------------------' + NewLine
+		str1 += 'section:' + self.getSecName() + NewLine
+		str1 += 'sentence count:' + str(len(self.sentenceList)) + NewLine
+		i=0
+		for sentence in self.sentenceList:
+			i += 1
+			str1 += '[' + str(i) + '] @@@@@@' + sentence +  '@@@@@@' + NewLine
 
+		return str1
+
+#------------------------------------------
+# Unit test
+#------------------------------------------
 class TestCvSection(unittest.TestCase):
 
 	def test_constructor(self):

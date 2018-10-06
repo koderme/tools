@@ -1,73 +1,60 @@
 #!/usr/bin/python3.5
 
-import docx
 import os
-import textract
-from docx import Document
-
-from SkillSet import *
+from nltk.tokenize import sent_tokenize, word_tokenize
 
 import sys
 sys.path.append('..')
+
 from common.Utils import *
-from Constants import *
+from CvSections import *
 
-# This tool is expected to scan the document, convert into below format
-# name       |source | req        |rating| <s> | <s> | <s> | ... | match
-# John White |naukri | java-spring| 3S   | 1   | 1   | 0   |     | <sum>
-#
-
-State = Enum('', 'processed errored')
-Tags = Enum('', 'srcfile content retcode')
 
 FIELD_SEP = ','
 
-#----------------------------------------
+
+
+#----------------------------------------------------
+# CvParser functions to parse the CV.
+#
+# Note:
+# * CV consists of multiple section.
+# * CvSection starts when tags defined in CvSection are found.
+# * CvSection ends another Section starts.
+#
+#----------------------------------------------------
+class CvParser:
+	def __init__(self, inFilepath):
+		self.inFilepath = inFilepath
+		self.cvSections = CvSections()
+
+	def getText(self):
+		str1 = open(self.inFilepath, 'r').read()
+		return str1
+
+	def parse(self):
+		str1 = self.getText()
+		sentenceList = sent_tokenize(str1)
+		self.cvSections.parse(sentenceList)
+		self.cvSections.show()
+	
+#----------------------------------------------------
 # Generates report with specified skills
-#----------------------------------------
-def findMatchingCv(inDir, skillArr):
-	colHead = [ 'date', 'src', 'fpath' ] + ALL_FIELDS + [ 'match']
-	print(FIELD_SEP.join(colHead))
+#----------------------------------------------------
+def findMatchingCv2(inDir, skillArr):
 	for root, _, fileArr in os.walk(inDir):
 		for rFile in fileArr: 
 			fpath = os.path.join(root, rFile)
-			fpathSplitted = fpath.split('/')
 
-			# retain last 3
-			l2 = fpathSplitted[-3:]
-			result = FIELD_SEP.join(l2)
-			
-			skillMatchCount = 0	
-			if ( rFile.endswith("docx") or rFile.endswith('doc') or rFile.endswith('pdf') ):
-
+			if ( rFile.endswith(".txt")):
 				stringCV = parseFile(fpath)
-				for skill in skillArr:
-					if (stringCV.find(skill) != -1):
-						result += FIELD_SEP + '1';
-						skillMatchCount += 1
-					else:
-						result += FIELD_SEP + '0';
-
-				# Extract experience
-				index = stringCV.find('year')
-				
-			result += FIELD_SEP + str(skillMatchCount)
-			print(result)
-
-
-#----------------------------------------
-#----------------------------------------
-class CvMatcher:
-	def __init__(self, inFilepath):
-		self.inFilepath = inFilepath
-		logging.info('xxxx:' + self.inFilepath + ':')
-		self.setDirs()
-	
-#----------------------------------------
+			else:
+				logging.info("unknwo extn...skipping")
+#----------------------------------------------------
 # Main
-#----------------------------------------
-#logging.basicConfig(level=logging.INFO)
-#dir1='temp'
-#CvConverter.convertToText(dir1)
+#----------------------------------------------------
+logging.basicConfig(level=logging.INFO)
+cvParser = CvParser('cv.txt')
+cvParser.parse()
 
 

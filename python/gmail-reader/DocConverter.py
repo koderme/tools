@@ -5,8 +5,6 @@ import os
 import textract
 from docx import Document
 
-from SkillSet import *
-
 import sys
 sys.path.append('..')
 from common.Utils import *
