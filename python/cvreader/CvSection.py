@@ -14,13 +14,19 @@ NewLine = '\n'
 #---------------------------------------------------
 # CvSection represents 1 section of Cv.
 # It stores following metadata
-#    secName  --> name of the section
-#    secTags  --> If matching tag is found, it 
-#                 indicates start of section
-#    parseLogic --> Function that would be executed
-#                   for parsing <sentences>
-#    secTagNameDict --> temp dictionary that 
-#                       store <SecTag> Vs <SecName>
+#    secName
+#         -- name of the section
+#    secTags  
+#         -- they are used to identify start of section.
+#         -- if line is identified as <SectionHeader> and 
+#            it contains any of <secTags>
+#            then its marked as <CvSection>
+#    parseLogic
+#         -- Function that would be executed for
+#            parsing <line list>
+#    secTagNameDict
+#         -- temp dictionary that stores
+#              <SecTag> Vs <SecName>
 #---------------------------------------------------
 
 class CvSection:
@@ -28,7 +34,7 @@ class CvSection:
 		self.secName = secName
 		self.secTags = secTags
 		self.parseLogic = parseLogic
-		self.sentenceList = []
+		self.lineList = []
 		self.setSecTagNameDict()
 
 	def setSecTagNameDict(self):
@@ -42,24 +48,23 @@ class CvSection:
 	def getSecTagNameDict(self):
 		return self.secTagNameDict
 
-	def getSentences(self):
-		return self.sentenceList
+	def getLineList(self):
+		return self.lineList
 
-	def addSentence(self, sentence):
-		self.sentenceList.append(sentence)
+	def addLine(self, line):
+		self.lineList.append(line)
 
 	def parse(self):
-		for sentence in self.sentenceList:
-			logging.info('parsing :' + sentence)
+		for line in self.lineList:
+			logging.debug('parsing :' + line)
 
 	def __str__(self):
 		str1 = '----------------------------------------' + NewLine
 		str1 += 'section:' + self.getSecName() + NewLine
-		str1 += 'sentence count:' + str(len(self.sentenceList)) + NewLine
 		i=0
-		for sentence in self.sentenceList:
+		for line in self.lineList:
 			i += 1
-			str1 += '[' + str(i) + '] @@@@@@' + sentence +  '@@@@@@' + NewLine
+			str1 += '[' + str(i) + '] = ' + line + NewLine
 
 		return str1
 
@@ -77,19 +82,19 @@ class TestCvSection(unittest.TestCase):
 		cvSection = CvSection('sec2', ['tag22', 'tag22'], 'some-func')
 		self.assertEqual(1, len(cvSection.getSecTagNameDict()))
 
-	def test_addSentence(self):
+	def test_addLine(self):
 		cvSection = CvSection('sec1', ['tag1', 'tag101'], 'some-func')
 
-		sentence1 = 'this is a test line 1'
-		cvSection.addSentence(sentence1)
-		self.assertEqual(sentence1, cvSection.getSentences()[0])
-		self.assertEqual(1, len(cvSection.getSentences()))
+		line1 = 'this is a test line 1'
+		cvSection.addLine(line1)
+		self.assertEqual(line1, cvSection.getLineList()[0])
+		self.assertEqual(1, len(cvSection.getLineList()))
 
-		sentence2 = 'this is a test line 2'
-		cvSection.addSentence(sentence2)
-		self.assertEqual(sentence2, cvSection.getSentences()[1])
+		line2 = 'this is a test line 2'
+		cvSection.addLine(line2)
+		self.assertEqual(line2, cvSection.getLineList()[1])
 
-		self.assertEqual(2, len(cvSection.getSentences()))
+		self.assertEqual(2, len(cvSection.getLineList()))
 
 # Run unit tests
 #if __name__ == '__main__':

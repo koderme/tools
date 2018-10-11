@@ -9,6 +9,7 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 
 from common.Utils import *
 from CvSection import *
+from CvRules import *
 
 
 Section =  Enum('', 'unknown default personal summary skill workhistory project education certification address objective')
@@ -16,7 +17,7 @@ Section =  Enum('', 'unknown default personal summary skill workhistory project 
 #---------------------------------------------------
 # CvSections represent collection of CvSection
 # NOTE:
-# * CvSection starts when tags defined in CvSection are found.
+# * CvSection starts when <SecTag> defined in CvSection are found.
 # * CvSection ends another Section starts.
 #
 # It use metadata from CvSection to form 2 dictionaries.
@@ -60,7 +61,7 @@ class CvSections:
 		cvs = CvSection(Section.workhistory.name, ['work history', 'career history', 'experience'], 'func2')
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.project.name, ['project summary'], 'func2')
+		cvs = CvSection(Section.project.name, ['project summary', 'assignment history'], 'func2')
 		self.updateDicts(cvs)
 
 		cvs = CvSection(Section.education.name, ['qualification', 'education', 'scholastic'], 'func2')
@@ -75,47 +76,50 @@ class CvSections:
 		cvs = CvSection(Section.objective.name, ['objective'], 'func2')
 		self.updateDicts(cvs)
 
+		
+	# Below is the logic used:	
+	# 1. Search the <SecTag> in the <line>.
+	#      If match is found, corr's <CvSection> becomes current.
+	#      else it continues to use prev <CvSection>
+	# 2. Add [line] to identfied CvSections
+	def parse(self, lineList):
+		currCvSec = self.getDetaultCvSection()
+		for line in lineList:
+			
+			# Find matching CvSection	
+			foundCvSec = self.findCvSection(line)
 
-	# Find matching section
-	# Here, the sentence is tokenized, and each word is
-	# matched with tags (defined for CvSection).
-	# When match occurs, corr's CvSection is returned.
-	# For no match, None is returned
-	def findCvSectionByWords(self, sentence):
-		wordList = word_tokenize(sentence)
-		for word in wordList:
-			matchingSecName = self.secTag_secName_dict.get(word, Section.unknown.name)
-			if (matchingSecName != Section.unknown.name):
-				logging.debug('matching section found:' + str(matchingSecName))
-				return self.secName_cvSection_dict[matchingSecName]
+			if (foundCvSec != None):
+				currCvSec = foundCvSec
 
-		return None
+			logging.debug("section [" + currCvSec.getSecName() + "] ====> [" + line + "]")
+			currCvSec.addLine(line)
 
+	#
 	# Find matching section.
-	# The collection of tags are matched with sentence.
-	# If matching tag is found, corr's CvSection is
-	# returned.
-	def findCvSection(self, sentence):
+	# Logic:
+	#    1. Is <line> a SectionHeader
+	#    2. Does <line> contains [SecTag]
+	# If [1] and [2] are true, corr's CvSection
+	# is returned, else None.
+	#
+	def findCvSection(self, line):
+		lineType = CvRules.getLineType(line)
+		logging.debug("line [" + line + "] has line type" + lineType)
+		if (lineType != LineType.SectionHeader.name):
+			logging.debug("line [" + line + "] is not SectionHeader")
+			return None
+
+		# Line is SectionHeader
+
+		# Proceed with secTag match
 		for secTag,secName in self.secTag_secName_dict.items():
-			if (sentence.find(secTag) != -1):
+			if (line.find(secTag) != -1):
 				logging.debug('matching section found:' + secName)
 				return self.secName_cvSection_dict[secName]
 
+		logging.debug("line [" + line + "] doesn't map to any Section")
 		return None
-			
-	# 1. Identify sections
-	# 2. Add sentences to identfied CvSections
-	def parse(self, sentenceList):
-		cvSec = self.getDetaultCvSection()
-		for sentence in sentenceList:
-			# Find matching CvSection	
-			foundCvSec = self.findCvSection(sentence)
-
-			if (foundCvSec != None):
-				cvSec = foundCvSec
-
-			logging.info("section [" + cvSec.getSecName() + "] ====> [" + sentence + "]")
-			cvSec.addSentence(sentence)
 
 	# Helper methods
 	def getDetaultCvSection(self):
@@ -128,6 +132,7 @@ class CvSections:
 		return self.secName_cvSection_dict
 
 	def show(self):
+		logging.info('-------------parsed cv content----------------')
 		for k,v in self.secName_cvSection_dict.items():
 			logging.info(str(v))
 

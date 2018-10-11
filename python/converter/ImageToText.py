@@ -89,18 +89,22 @@ def pdfToImage(pdfFilepath):
 #--------------------------------------------
 def convertToText(args):
 
+	converted = 0
+	skipped = 0
 	for filepath in glob.glob(args.in_dir + '/' + '*.*'):
 
 		outFilepath = Utils.nameWithoutExtn(filepath) + OutputExtension
 
-		logging.info('-----------------------')
-		logging.info('processing : ' + filepath)
-
 		# Skip file that have been converted
 		tmpPath = Path(outFilepath)
 		if tmpPath.is_file():
-			logging.info("file already converted...skipping")
+			logging.debug("file already converted...skipping")
+			skipped += 1
 			continue
+
+		converted += 1
+		logging.info('-----------------------')
+		logging.info('processing : ' + filepath)
 
 		filepathLower=filepath.lower()
 
@@ -117,7 +121,12 @@ def convertToText(args):
 			f.write(text)
 			f.close()
 		else:
-			logging.info('file xtn unknown...skipping...')
+			logging.debug('file xtn unknown...skipping...')
+			i=0
+
+	logging.info('summary : ' +
+			'converted = ' + str(converted) + '+' +
+			'skipped = ' + str(skipped) )
 
 #----------------------------------------
 # Main

@@ -32,10 +32,20 @@ class CvParser:
 		str1 = open(self.inFilepath, 'r').read()
 		return str1
 
-	def parse(self):
+	def parseUsingNLP(self):
 		str1 = self.getText()
 		sentenceList = sent_tokenize(str1)
 		self.cvSections.parse(sentenceList)
+		self.cvSections.show()
+
+	def parse(self):
+		f = open(self.inFilepath, 'r+')
+		lineList = []
+		for line in f.readlines():
+			lineList.append(line)
+		f.close()
+
+		self.cvSections.parse(lineList)
 		self.cvSections.show()
 	
 #----------------------------------------------------
@@ -54,7 +64,7 @@ def findMatchingCv2(inDir, skillArr):
 # Main
 #----------------------------------------------------
 logging.basicConfig(level=logging.INFO)
-cvParser = CvParser('cv.txt')
+cvParser = CvParser('temp/cv.txt')
 cvParser.parse()
 
 
