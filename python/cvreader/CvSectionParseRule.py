@@ -6,6 +6,7 @@ import sys
 sys.path.append('..')
 
 from common.Utils import *
+from ReferenceData import *
 from CvSections import *
 from CvParseRule import *
 
@@ -81,9 +82,19 @@ def parseDefault(cvSec):
 # NOTE : It modifies the input object.
 #-----------------------------------------------------
 def parsePersonal(cvSec):
-	location = ''
-	dob = ''
-	married = ''
+
+	location = Ref.DefaultLocation
+
+	for line in cvSec.getLineList():
+		# Fetch location
+		if (location != Ref.DefaultLocation):
+			break
+
+		location = Ref.getLocation(line)
+	
+
+	cvSec.addParseResult('location', location)
+	
 
 #------------------------------------------
 # Unit test
@@ -163,6 +174,25 @@ class TestThisClass(unittest.TestCase):
 		self.assertEqual('first.last@gmail.com', cvSec.getParseResult()['emailid'][0])
 		#self.assertEqual('+91 1112223344', cvSec.getParseResult()['phone'][0])
 		self.assertEqual('First Last', cvSec.getParseResult()['name'])
+
+	# ----------- parsePersonal ----------
+	def test_parsePersonal(self):
+
+		cvSec = CvSection(Section.personal.name, ['personal', 'aboutme'])
+
+		lines = []
+		lines.append('languages known     :   english, hindi,kannada')
+		lines.append('permanent address  :   #14,3rd floor, 4th cross, rahamath nagar, rt nagar, bangalore-32 ')
+		lines.append('place:            			signature')
+		lines.append('bangalore (karnataka)     syed younus')
+
+		for line in lines:
+			cvSec.addLine(line)
+
+		parsePersonal(cvSec)
+		self.assertEqual(1, len(cvSec.getParseResult()))
+		self.assertEqual('bangalore', cvSec.getParseResult()['location'])
+
 
 # Run unit tests
 #if __name__ == '__main__':

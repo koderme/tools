@@ -6,6 +6,7 @@ import unittest
 import sys
 sys.path.append('..')
 
+from ReferenceData import *
 from common.Utils import *
 from nltk.tokenize import sent_tokenize, word_tokenize
 
@@ -18,31 +19,20 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 #     > Others
 # 
 #---------------------------------------------------
-LineType =  Enum('', 'SectionHeader SectionBody Others')
-
-#
-# It tokenizes the specified line using nltp.
-# @param line
-# @return list of words with length > 1
-#
-def wordTokensize(line):
-	wordList = word_tokenize(line)
-	return list(filter(lambda x: len(x) > 1, wordList))
-
 
 class CvParseRule:
 	# Identify line
 	def getLineType(line):
-		wordList = wordTokensize(line)
-		retType = LineType.Others.name
+		wordList = Common.wordTokenize(line)
+		retType = Ref.LineType.Others.name
 		wLen = len(wordList)
 
 		if (wLen == 0):
-			retType = LineType.Others.name
+			retType = Ref.LineType.Others.name
 		elif ((wLen >= 1) and (wLen <= 3)):
-			retType = LineType.SectionHeader.name
+			retType = Ref.LineType.SectionHeader.name
 		else:
-			retType = LineType.SectionBody.name
+			retType = Ref.LineType.SectionBody.name
 
 		return retType
 
@@ -69,30 +59,30 @@ class TestCvParseRule(unittest.TestCase):
 	def test_SectionHeader(self):
 		# 
 		line = 'summary'
-		self.assertEqual(LineType.SectionHeader.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRule.getLineType(line))
 		# 
 		line = 'work history'
-		self.assertEqual(LineType.SectionHeader.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRule.getLineType(line))
 		# 
 		line = 'xxx YYY zzZ:'
-		self.assertEqual(LineType.SectionHeader.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRule.getLineType(line))
 
 	def test_SectionBody(self):
 
 		# 
 		line = 'Experience with java, spring'
-		self.assertEqual(LineType.SectionBody.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionBody.name, CvParseRule.getLineType(line))
 		# 
 		line = 'Certified in AWS archtecture....and aws networking'
-		self.assertEqual(LineType.SectionBody.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionBody.name, CvParseRule.getLineType(line))
 
 	def test_Others(self):
 		# 
 		line = ':'
-		self.assertEqual(LineType.Others.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.Others.name, CvParseRule.getLineType(line))
 		# 
 		line = ':::  '
-		self.assertEqual(LineType.Others.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.Others.name, CvParseRule.getLineType(line))
 
 	def test_extractEmail(self):
 		# 

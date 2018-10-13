@@ -8,6 +8,8 @@ sys.path.append('..')
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 from common.Utils import *
+from Common import *
+from ReferenceData import *
 from CvSection import *
 from CvParseRule import *
 
@@ -113,7 +115,7 @@ class CvSections:
 	def findCvSection(self, line):
 		lineType = CvParseRule.getLineType(line)
 		logging.debug("line [" + line + "] has line type" + lineType)
-		if (lineType != LineType.SectionHeader.name):
+		if (lineType != Ref.LineType.SectionHeader.name):
 			logging.debug("line [" + line + "] is not SectionHeader")
 			return None
 
