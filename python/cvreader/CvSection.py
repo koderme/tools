@@ -24,18 +24,24 @@ NewLine = '\n'
 #    parseLogic
 #         -- Function that would be executed for
 #            parsing <line list>
+#    parseResult
+#         -- dict containing parse results
 #    secTagNameDict
 #         -- temp dictionary that stores
 #              <SecTag> Vs <SecName>
 #---------------------------------------------------
 
 class CvSection:
-	def __init__(self, secName, secTags, parseLogic):
+	def __init__(self, secName, secTags, parseLogic=""):
 		self.secName = secName
 		self.secTags = secTags
-		self.parseLogic = parseLogic
+		if (len(parseLogic) == 0):
+			self.parseLogic = secName
+		else:
+			self.parseLogic = parseLogic
 		self.lineList = []
 		self.setSecTagNameDict()
+		self.parseResult = {}
 
 	def setSecTagNameDict(self):
 		self.secTagNameDict = {}
@@ -57,6 +63,12 @@ class CvSection:
 	def parse(self):
 		for line in self.lineList:
 			logging.debug('parsing :' + line)
+
+	def getParseResult(self):
+		return self.parseResult
+
+	def addParseResult(self, token, value):
+		self.parseResult[token] = value
 
 	def __str__(self):
 		str1 = '----------------------------------------' + NewLine

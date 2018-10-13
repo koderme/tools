@@ -9,7 +9,7 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 
 from common.Utils import *
 from CvSection import *
-from CvRules import *
+from CvParseRule import *
 
 
 Section =  Enum('', 'unknown default personal summary skill workhistory project education certification address objective')
@@ -43,37 +43,37 @@ class CvSections:
 
 	# It builds the schema for CV.
 	def buildCvSchema(self):
-		cvs = CvSection(Section.unknown.name, [], 'func1')
+		cvs = CvSection(Section.unknown.name, [])
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.default.name, [], 'func1')
+		cvs = CvSection(Section.default.name, [])
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.personal.name, ['personal', 'aboutme'], 'func1')
+		cvs = CvSection(Section.personal.name, ['personal', 'aboutme'])
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.summary.name, ['professional summary', 'profile summary'], 'func2')
+		cvs = CvSection(Section.summary.name, ['professional summary', 'profile summary'])
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.skill.name, ['skill'], 'func2')
+		cvs = CvSection(Section.skill.name, ['skill'])
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.workhistory.name, ['work history', 'career history', 'experience'], 'func2')
+		cvs = CvSection(Section.workhistory.name, ['work history', 'career history', 'experience'])
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.project.name, ['project summary', 'assignment history'], 'func2')
+		cvs = CvSection(Section.project.name, ['project summary', 'assignment history'])
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.education.name, ['qualification', 'education', 'scholastic'], 'func2')
+		cvs = CvSection(Section.education.name, ['qualification', 'education', 'scholastic'])
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.certification.name, ['certification'], 'func2')
+		cvs = CvSection(Section.certification.name, ['certification'])
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.address.name, ['address', 'residence'], 'func2')
+		cvs = CvSection(Section.address.name, ['address', 'residence'])
 		self.updateDicts(cvs)
 
-		cvs = CvSection(Section.objective.name, ['objective'], 'func2')
+		cvs = CvSection(Section.objective.name, ['objective'])
 		self.updateDicts(cvs)
 
 		
@@ -85,6 +85,10 @@ class CvSections:
 	def parse(self, lineList):
 		currCvSec = self.getDetaultCvSection()
 		for line in lineList:
+
+			line = line.strip()
+			if (len(line) <= 1):
+				continue
 			
 			# Find matching CvSection	
 			foundCvSec = self.findCvSection(line)
@@ -95,6 +99,9 @@ class CvSections:
 			logging.debug("section [" + currCvSec.getSecName() + "] ====> [" + line + "]")
 			currCvSec.addLine(line)
 
+		for k,v in self.secName_cvSection_dict.items():
+			v.parse()
+
 	#
 	# Find matching section.
 	# Logic:
@@ -104,7 +111,7 @@ class CvSections:
 	# is returned, else None.
 	#
 	def findCvSection(self, line):
-		lineType = CvRules.getLineType(line)
+		lineType = CvParseRule.getLineType(line)
 		logging.debug("line [" + line + "] has line type" + lineType)
 		if (lineType != LineType.SectionHeader.name):
 			logging.debug("line [" + line + "] is not SectionHeader")
