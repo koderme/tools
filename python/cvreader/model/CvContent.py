@@ -13,28 +13,35 @@ from model.ReferenceData import *
 
 #-------------------------------------------------------------
 # CvContent is a dictionary of
-#    section-name Vs sentence[]
+#    section-name Vs lineList[]
 #-------------------------------------------------------------
 class CvContent:
 	def __init__(self):
 		self.contentDict = {}
 
-	def add(self, sectionName, sentence):
-		sentenceList = self.contentDict.get(sectionName)
-		if (sentenceList == None):
-			sentenceList = []
-			self.contentDict[sectionName] = sentenceList
-		sentenceList.append(sentence)
+	def addLine(self, sectionName, line):
+		lineList = self.contentDict.get(sectionName)
+		if (lineList == None):
+			lineList = []
+			self.contentDict[sectionName] = lineList
+		lineList.append(line)
 
-	def getSentenceList(self, sectionName):
-		sentenceList = self.contentDict.get(sectionName)
-		if (sentenceList == None):
+	def getLineList(self, sectionName):
+		lineList = self.contentDict.get(sectionName)
+		if (lineList == None):
 			return []
-		return sentenceList	
+		return lineList	
 
 	def getContentDict(self):
 		return self.contentDict
 
+	def __str__(self):
+		retStr = ''
+		for secName,lineList in self.contentDict.items():
+			retStr += '\n---------------' + secName + '---------------'
+			for line in lineList:
+				retStr += '\n' + line
+		return retStr
 #---------------------------------------------------------------
 # Unit tests
 #---------------------------------------------------------------
@@ -44,18 +51,18 @@ class TestCvContent(unittest.TestCase):
 
 		content = CvContent()
 
-		content.add(Ref.Section.personal.name, 'email: test@gmail.com')
-		content.add(Ref.Section.personal.name, 'name: John White')
+		content.addLine(Ref.Section.personal.name, 'email: test@gmail.com')
+		content.addLine(Ref.Section.personal.name, 'name: John White')
 
-		sentList = content.getSentenceList(Ref.Section.personal.name)
-		self.assertEqual(2, len(sentList))
+		lineList = content.getLineList(Ref.Section.personal.name)
+		self.assertEqual(2, len(lineList))
 
-		content.add(Ref.Section.skill.name, 'java cpp python')
-		sentList = content.getSentenceList(Ref.Section.skill.name)
-		self.assertEqual(1, len(sentList))
+		content.addLine(Ref.Section.skill.name, 'java cpp python')
+		lineList = content.getLineList(Ref.Section.skill.name)
+		self.assertEqual(1, len(lineList))
 
-		sentList = content.getSentenceList(Ref.Section.unknown.name)
-		self.assertEqual(0, len(sentList))
+		lineList = content.getLineList(Ref.Section.unknown.name)
+		self.assertEqual(0, len(lineList))
 
 
 

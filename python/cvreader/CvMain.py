@@ -5,9 +5,11 @@
 import sys
 import argparse
 sys.path.append('..')
+sys.path.append('../..')
 
 from common.Utils import *
-from CvParser import *
+from CvParseImpl import *
+from model.CvParseResult import *
 
 # This program is intended to 
 #    -- read specified email box
@@ -21,7 +23,7 @@ from CvParser import *
 #----------------------------------------
 def parseArgs(progArgs):
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-a','--action', help='match', required=True)
+	parser.add_argument('-a','--action', help='parse', required=True)
 	#parser.add_argument('-s','--skills', help='skills', required=False)
 	#parser.add_argument('-d','--dir', help='dir', required=True)
 
@@ -32,6 +34,7 @@ def parseArgs(progArgs):
 #----------------------------------------
 def	doAction(cmdArgs):
 
+	logging.info('cmdArgs:' + str(cmdArgs))
 	if (cmdArgs.action == 'parse'):
 		doParse(cmdArgs)
 
@@ -42,6 +45,8 @@ def doParse(cmdArgs):
 	logging.info('action:' + cmdArgs.action)
 
 	parser = CvParseImpl('temp/developer.txt')
+	prResult = parser.parse()
+	logging.info('parse-result:' + str(prResult))
 	
 
 #----------------------------------------

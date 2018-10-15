@@ -10,9 +10,9 @@ from common.Utils import *
 from Common import *
 from rules.CvParseRules import *
 from model.ReferenceData import *
-
-from CvSection import *
-from CvSchemaBuilder import *
+from model.CvContent import *
+from schema.CvSection import *
+from schema.CvSchemaBuilder import *
 
 #-------------------------------------------------------------
 # CvSchema holds the structure/metadata parsing content.
@@ -90,8 +90,8 @@ class CvSchema:
 
 			logging.debug("section [" + currCvSec.getSecName() + "] ====> [" + line + "]")
 			if (not newSectionFound):
-				currCvSec.addLine(line)
-				content.addSentence(currCvSec.getSecName(), line)
+				# TODO make efficient
+				content.addLine(currCvSec.getSecName(), line)
 
 		return content
 
@@ -138,8 +138,17 @@ class CvSchema:
 		if (section == None):
 			logging.warn('section[' + secName + '] not found')
 			return None
-		else
-			section.getParseFunc()
+
+		return section.getParseFunc()
+
+	def __str__(self):
+		retStr = ''
+		for secName, cvSec in self.secName_cvSection_dict.items():
+			retStr += str(cvSec) + '\n'
+
+		return retStr
+		
+
 #---------------------------------------------------------------
 # Unit tests
 #---------------------------------------------------------------

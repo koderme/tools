@@ -54,6 +54,9 @@ class CvSection:
 	def getParseFunc(self):
 		return self.parseFunc
 
+	def __str__(self):
+		return self.secName + ':' + str(self.secTags)+ ':' + str(self.parseFunc)
+
 
 #------------------------------------------
 # Unit test

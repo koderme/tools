@@ -6,14 +6,14 @@ import abc
 import sys
 sys.path.append('..')
 
-from CvParseResult import *
+from model.CvParseResult import *
 
 #----------------------------------------------------
 # CvParse is abstract class.
 # It exposes API for parsing CV.
 #
 #----------------------------------------------------
-class CvParse:
+class CvParse(object, metaclass=abc.ABCMeta):
 	def __init__(self, inFilepath):
 		self.inFilepath = inFilepath
 

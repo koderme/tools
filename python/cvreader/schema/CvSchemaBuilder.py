@@ -9,8 +9,9 @@ sys.path.append('../..')
 from common.Utils import *
 from Common import *
 
-from CvSection import *
+from schema.CvSection import *
 from model.ReferenceData import *
+from rules.CvSectionParseRules import *
 
 #-------------------------------------------------------------
 # CvSchemaBuilder is responsible for building the CvSchema.
@@ -24,13 +25,13 @@ class CvSchemaBuilder:
 		sections = []
 		sec = CvSection(Ref.Section.unknown.name, [])
 		sections.append(sec)
-		sec = CvSection(Ref.Section.default.name, [])
+		sec = CvSection(Ref.Section.default.name, [], parseDefault)
 		sections.append(sec)
-		sec = CvSection(Ref.Section.personal.name, ['personal', 'aboutme'])
+		sec = CvSection(Ref.Section.personal.name, ['personal', 'aboutme'], parsePersonal)
 		sections.append(sec)
 		sec = CvSection(Ref.Section.summary.name, ['professional summary', 'profile summary'])
 		sections.append(sec)
-		sec = CvSection(Ref.Section.skill.name, ['skill'])
+		sec = CvSection(Ref.Section.skill.name, ['skill'], parseSkill)
 		sections.append(sec)
 		sec = CvSection(Ref.Section.workhistory.name, ['work history', 'career history', 'experience'])
 		sections.append(sec)

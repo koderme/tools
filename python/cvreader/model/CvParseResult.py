@@ -42,6 +42,13 @@ class CvParseResult:
 			self.contentDict[sectionName] = attrDict
 		return attrDict
 
+	def __str__(self):
+		retStr = ''
+		for secName, attrDict in self.contentDict.items():
+			retStr += '\n[' + secName + '] ==> '  + str(attrDict)
+
+		return retStr
+
 
 #---------------------------------------------------------------
 # Unit tests
