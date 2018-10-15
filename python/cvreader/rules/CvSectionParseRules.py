@@ -4,12 +4,15 @@ import os
 import unittest
 import sys
 sys.path.append('..')
+sys.path.append('../..')
 
+from model.ReferenceData import *
+from rules.CvParseRules import *
 from common.Utils import *
-from ReferenceData import *
-from CvSections import *
-from CvParseRule import *
 
+#-----------------------------------------------------
+# Helper functions
+#-----------------------------------------------------
 def split_1_then_2(line, splitChar1, splitChar2):
 	firstSplitToks = line.split(splitChar1)
 
@@ -20,6 +23,11 @@ def split_1_then_2(line, splitChar1, splitChar2):
 	# Has splitChar1
 	return firstSplitToks[1].split(splitChar2)
 	
+#-----------------------------------------------------
+# Nothing to be done
+#-----------------------------------------------------
+def parseNoop(sentenceList, prDict):
+	pass
 
 #-----------------------------------------------------
 # It parses the lines in specified CvSection
@@ -27,15 +35,15 @@ def split_1_then_2(line, splitChar1, splitChar2):
 # e.g.: operating systems     :    windows  and unix
 # e.g.: core  java, servlets, jsp, jdbc
 #
-# @param CvSection containing the lines to be parsed.
-# NOTE : It modifies the input object.
+# @param sentenceList list of sentences to be parsed.
+# @param prDict where results will be stored.
 #-----------------------------------------------------
-def parseSkill(cvSec):
+def parseSkill(sentenceList, prDict):
 	skillList = []
-	for line in cvSec.getLineList():
+	for line in sentenceList:
 		skillList.extend(split_1_then_2(line, ':', ','))
 
-	cvSec.addParseResult(Section.skill.name, skillList)
+	prDict[Ref.Section.skill.name] = skillList
 
 #-----------------------------------------------------
 # It parses the lines in specified CvSection
@@ -45,21 +53,21 @@ def parseSkill(cvSec):
 #   3. If above extraction has no results
 #      it assumes this line to be name.
 #
-# @param CvSection containing the lines to be parsed.
-# NOTE : It modifies the input object.
+# @param sentenceList list of sentences to be parsed.
+# @param prDict where results will be stored.
 #-----------------------------------------------------
-def parseDefault(cvSec):
+def parseDefault(sentenceList, prDict):
 	emailIdList = []
 	phoneList = []
 	name = ''
-	for line in cvSec.getLineList():
+	for line in sentenceList:
 
 		# Extract email
 		if (len(emailIdList) == 0):
-			emailIdList = CvParseRule.getEmail(line)
+			emailIdList = CvParseRules.getEmail(line)
 
 		if (len(phoneList) == 0):
-			phoneList = CvParseRule.getPhone(line)
+			phoneList = CvParseRules.getPhone(line)
 
 		
 		if ((len(emailIdList) == 0) and (len(phoneList) == 0)):
@@ -68,9 +76,9 @@ def parseDefault(cvSec):
 	# Remove tags from name
 	name = split_1_then_2(name, ':', '__anything__')[0].strip()
 
-	cvSec.addParseResult('emailid', emailIdList)
-	cvSec.addParseResult('phone', phoneList)
-	cvSec.addParseResult('name',  name)
+	prDict['emailid'] = emailIdList
+	prDict['phone'] = phoneList
+	prDict['name'] = name
 
 #-----------------------------------------------------
 # It parses the lines in specified CvSection
@@ -78,23 +86,21 @@ def parseDefault(cvSec):
 #   1. It extracts location
 #   2. It extracts DOB
 #
-# @param CvSection containing the lines to be parsed.
-# NOTE : It modifies the input object.
+# @param sentenceList list of sentences to be parsed.
+# @param prDict where results will be stored.
 #-----------------------------------------------------
-def parsePersonal(cvSec):
+def parsePersonal(sentenceList, prDict):
 
 	location = Ref.DefaultLocation
 
-	for line in cvSec.getLineList():
+	for line in sentenceList:
 		# Fetch location
 		if (location != Ref.DefaultLocation):
 			break
 
 		location = Ref.getLocation(line)
 	
-
-	cvSec.addParseResult('location', location)
-	
+	prDict['location'] = location
 
 #------------------------------------------
 # Unit test
@@ -104,81 +110,63 @@ class TestThisClass(unittest.TestCase):
 	# ----------- parseSkill ----------
 	def test_parseSkill_with_colon(self):
 
-		cvSec = CvSection(Section.skill.name, ['skill'])
-
 		lines = []
 		lines.append('operating systems     :    windows  and unix')
 		lines.append('j2ee  technologies    :    core  java, servlets, jsp, jdbc')
 		lines.append('frameworks   /methodologies   :    spring,   hibernate')
 
-		for line in lines:
-			cvSec.addLine(line)
+		prDict = {}
+		parseSkill(lines, prDict)
 
-		parseSkill(cvSec)
-
-		self.assertEqual(1, len(cvSec.getParseResult()))
-		self.assertEqual(7, len(cvSec.getParseResult()[Section.skill.name]))
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(7, len(prDict[Ref.Section.skill.name]))
 
 	# ----------- parseSkill ----------
 	def test_parseSkill_nocolon(self):
-
-		cvSec = CvSection(Section.skill.name, ['skill'])
 
 		lines = []
 		lines.append('windows  and unix')
 		lines.append('core  java, servlets, jsp, jdbc')
 		lines.append('spring,   hibernate')
 
-		for line in lines:
-			cvSec.addLine(line)
+		prDict = {}
+		parseSkill(lines, prDict)
 
-		parseSkill(cvSec)
-
-		self.assertEqual(1, len(cvSec.getParseResult()))
-		self.assertEqual(7, len(cvSec.getParseResult()[Section.skill.name]))
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(7, len(prDict[Ref.Section.skill.name]))
 
 	# ----------- parseDefault ----------
 	def test_parseDefault(self):
-
-		cvSec = CvSection(Section.default.name, [''])
 
 		lines = []
 		lines.append('name : First Last')
 		lines.append('email : first.last@gmail.com')
 		lines.append('mobile : +91 1112223344, 2223334455')
 
-		for line in lines:
-			cvSec.addLine(line)
-
-		parseDefault(cvSec)
-		self.assertEqual(3, len(cvSec.getParseResult()))
-		self.assertEqual('first.last@gmail.com', cvSec.getParseResult()['emailid'][0])
+		prDict = {}
+		parseDefault(lines, prDict)
+		self.assertEqual(3, len(prDict))
+		self.assertEqual('first.last@gmail.com', prDict['emailid'][0])
 		#self.assertEqual('+91 1112223344', cvSec.getParseResult()['phone'][0])
-		self.assertEqual('First Last', cvSec.getParseResult()['name'])
+		self.assertEqual('First Last', prDict['name'])
 
 	# ----------- parseDefault ----------
 	def test_parseDefault_wo_token(self):
-
-		cvSec = CvSection(Section.default.name, [''])
 
 		lines = []
 		lines.append('First Last')
 		lines.append('first.last@gmail.com')
 		lines.append('+91 1112223344, 2223334455')
 
-		for line in lines:
-			cvSec.addLine(line)
-
-		parseDefault(cvSec)
-		self.assertEqual(3, len(cvSec.getParseResult()))
-		self.assertEqual('first.last@gmail.com', cvSec.getParseResult()['emailid'][0])
+		prDict = {}
+		parseDefault(lines, prDict)
+		self.assertEqual(3, len(prDict))
+		self.assertEqual('first.last@gmail.com', prDict['emailid'][0])
 		#self.assertEqual('+91 1112223344', cvSec.getParseResult()['phone'][0])
-		self.assertEqual('First Last', cvSec.getParseResult()['name'])
+		self.assertEqual('First Last', prDict['name'])
 
 	# ----------- parsePersonal ----------
 	def test_parsePersonal(self):
-
-		cvSec = CvSection(Section.personal.name, ['personal', 'aboutme'])
 
 		lines = []
 		lines.append('languages known     :   english, hindi,kannada')
@@ -186,12 +174,10 @@ class TestThisClass(unittest.TestCase):
 		lines.append('place:            			signature')
 		lines.append('bangalore (karnataka)     syed younus')
 
-		for line in lines:
-			cvSec.addLine(line)
-
-		parsePersonal(cvSec)
-		self.assertEqual(1, len(cvSec.getParseResult()))
-		self.assertEqual('bangalore', cvSec.getParseResult()['location'])
+		prDict = {}
+		parsePersonal(lines, prDict)
+		self.assertEqual(1, len(prDict))
+		self.assertEqual('bangalore', prDict['location'])
 
 
 # Run unit tests

@@ -1,14 +1,15 @@
 #!/usr/bin/python3.5
 import sys
 sys.path.append('..')
+sys.path.append('../..')
 
-from common.Utils import *
 from Common import *
-
-
+from common.Utils import *
 
 
 class Ref:
+	Tag =  Enum('', 'summary skill role project employer certification personal')
+	Section =  Enum('', 'unknown default personal summary skill workhistory project education certification address objective')
 	LineType =  Enum('', 'SectionHeader SectionBody Others')
 	DefaultLocation =  'others'
 	LocationDict = {
@@ -47,7 +48,6 @@ class Ref:
 		wordList = Common.wordTokenize(line)
 		location = ''
 		for word in wordList:
-			print('finding [' +word + '] in dict')
 			location = Ref.LocationDict.get(word, Ref.DefaultLocation)
 			if (location != Ref.DefaultLocation):
 				return location

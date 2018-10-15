@@ -22,8 +22,8 @@ from CvParser import *
 def parseArgs(progArgs):
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-a','--action', help='match', required=True)
-	parser.add_argument('-s','--skills', help='skills', required=False)
-	parser.add_argument('-d','--dir', help='dir', required=True)
+	#parser.add_argument('-s','--skills', help='skills', required=False)
+	#parser.add_argument('-d','--dir', help='dir', required=True)
 
 	return parser.parse_args()
 
@@ -32,17 +32,16 @@ def parseArgs(progArgs):
 #----------------------------------------
 def	doAction(cmdArgs):
 
-	if (cmdArgs.action == 'match'):
-		doMatch(cmdArgs)
+	if (cmdArgs.action == 'parse'):
+		doParse(cmdArgs)
 
 #----------------------------------------
 # Specific action
 #----------------------------------------
-def doMatch(cmdArgs):
-	logging.info('action:' +cmdArgs.action)
+def doParse(cmdArgs):
+	logging.info('action:' + cmdArgs.action)
 
-	mail = EmailProcessor(EMAIL_ID.CV_HUEKLR_GMAIL)
-	CvParser.match(cmdArgs.dir)
+	parser = CvParseImpl('temp/developer.txt')
 	
 
 #----------------------------------------

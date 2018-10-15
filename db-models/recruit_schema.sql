@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS recruit.client_mast (
   addr2         VARCHAR(250),
   addr3         VARCHAR(250),
   update_date   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (location_code)
+  PRIMARY KEY (client_code)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
@@ -104,12 +104,12 @@ CREATE TABLE IF NOT EXISTS recruit.requirement (
     REFERENCES recruit.location_mast (location_code)
     ON DELETE RESTRICT)
 
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
 CREATE UNIQUE INDEX idx_requirement_rc
 ON recruit.requirement (requirement_code);
 
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
 
 ----------------------------------------------------
 -- tbd
@@ -117,12 +117,12 @@ DEFAULT CHARACTER SET = utf8;
 DROP TABLE IF EXISTS recruit.requirement_jd ;
 
 CREATE TABLE IF NOT EXISTS recruit.requirement_jd (
+  requirement_jd_id     BIGINT  AUTO_INCREMENT NOT NULL,
   requirement_id    BIGINT NOT NULL,
-  requirement_jd_id BIGINT NOT NULL,
   req_jd_type       VARCHAR(50) NOT NULL, -- mandatory, optional, responsibilities
   description       VARCHAR(500) NOT NULL,
   update_date      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (requirement_id, requirement_jd_id),
+  PRIMARY KEY (requirement_jd_id),
 
   CONSTRAINT fk_requirement_jd_ri
     FOREIGN KEY (requirement_id)

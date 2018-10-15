@@ -32,6 +32,19 @@ class Utils:
 	def sleep(durationInMs):
 		time.sleep(durationInMs/1000.0);
 
+	def getText(inFilepath):
+		str1 = open(inFilepath, 'r').read()
+		return str1
+
+	def getTextLines(inFilepath):
+		f = open(inFilepath, 'r+')
+		lineList = []
+		for line in f.readlines():
+			lineList.append(line)
+		f.close()
+
+		return lineList
+
 #----------------------------------------
 # MyEnum
 #----------------------------------------

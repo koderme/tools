@@ -5,14 +5,16 @@ import re
 import unittest
 import sys
 sys.path.append('..')
+sys.path.append('../..')
 
-from ReferenceData import *
-from common.Utils import *
 from nltk.tokenize import sent_tokenize, word_tokenize
+
+from model.ReferenceData import *
+from common.Utils import *
 
 
 #---------------------------------------------------
-# CvParseRule maintains collections of rules used for
+# CvParseRules maintains collections of rules used for
 # detecting
 #     > SectionHeader
 #     > SectionBody
@@ -20,7 +22,7 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 # 
 #---------------------------------------------------
 
-class CvParseRule:
+class CvParseRules:
 	# Identify line
 	def getLineType(line):
 		wordList = Common.wordTokenize(line)
@@ -54,75 +56,75 @@ class CvParseRule:
 #------------------------------------------
 # Unit test
 #------------------------------------------
-class TestCvParseRule(unittest.TestCase):
+class TestCvParseRules(unittest.TestCase):
 
 	def test_SectionHeader(self):
 		# 
 		line = 'summary'
-		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRules.getLineType(line))
 		# 
 		line = 'work history'
-		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRules.getLineType(line))
 		# 
 		line = 'xxx YYY zzZ:'
-		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRules.getLineType(line))
 
 	def test_SectionBody(self):
 
 		# 
 		line = 'Experience with java, spring'
-		self.assertEqual(Ref.LineType.SectionBody.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionBody.name, CvParseRules.getLineType(line))
 		# 
 		line = 'Certified in AWS archtecture....and aws networking'
-		self.assertEqual(Ref.LineType.SectionBody.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionBody.name, CvParseRules.getLineType(line))
 
 	def test_Others(self):
 		# 
 		line = ':'
-		self.assertEqual(Ref.LineType.Others.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.Others.name, CvParseRules.getLineType(line))
 		# 
 		line = ':::  '
-		self.assertEqual(Ref.LineType.Others.name, CvParseRule.getLineType(line))
+		self.assertEqual(Ref.LineType.Others.name, CvParseRules.getLineType(line))
 
 	def test_extractEmail(self):
 		# 
 		line = 'email: test@gmail.com alternate-email test2@outlook.com '
-		emailList = CvParseRule.getEmail(line)
+		emailList = CvParseRules.getEmail(line)
 		self.assertEqual(2, len(emailList))
 		self.assertEqual('test@gmail.com', emailList[0])
 		self.assertEqual('test2@outlook.com', emailList[1])
 
 		# 
 		line = 'email: @gmail.com alternate-email test2@outlook.com something@ '
-		emailList = CvParseRule.getEmail(line)
+		emailList = CvParseRules.getEmail(line)
 		self.assertEqual(1, len(emailList))
 		self.assertEqual('test2@outlook.com', emailList[0])
 
 		# 
 		line = 'email: @gmail.com alternate-email @outlook.com something@ '
-		emailList = CvParseRule.getEmail(line)
+		emailList = CvParseRules.getEmail(line)
 		self.assertEqual(0, len(emailList))
 
 	def test_extractPhone(self):
 		# 
 		line = 'ph no       : +916300153913'
-		phoneList = CvParseRule.getPhone(line)
+		phoneList = CvParseRules.getPhone(line)
 		line = 'email: monika.arya0118@gmail.com phone: +91-7767900443'
-		phoneList = CvParseRule.getPhone(line)
+		phoneList = CvParseRules.getPhone(line)
 		line = 'snehal auti      phone: (+91) 83-7899-0878'
-		phoneList = CvParseRule.getPhone(line)
+		phoneList = CvParseRules.getPhone(line)
 		line = ' phone: +91- 9721695547'
-		phoneList = CvParseRule.getPhone(line)
+		phoneList = CvParseRules.getPhone(line)
 		line = 'ph no       : +916300153913'
-		phoneList = CvParseRule.getPhone(line)
+		phoneList = CvParseRules.getPhone(line)
 		line = 'venkata subbaraju rallabandi                              phone: 9676018342'
-		phoneList = CvParseRule.getPhone(line)
+		phoneList = CvParseRules.getPhone(line)
 		line = ':email id: sharvila.gawande@gmail.com                                           phone no: +91-9096080922'
-		phoneList = CvParseRule.getPhone(line)
+		phoneList = CvParseRules.getPhone(line)
 		self.assertEqual(1, len(phoneList))
 
 # Run unit tests
 #if __name__ == '__main__':
 #unittest.main()
-suite = unittest.TestLoader().loadTestsFromTestCase(TestCvParseRule)
+suite = unittest.TestLoader().loadTestsFromTestCase(TestCvParseRules)
 unittest.TextTestRunner(verbosity=2).run(suite)
