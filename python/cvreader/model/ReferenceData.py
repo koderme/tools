@@ -1,17 +1,18 @@
 #!/usr/bin/python3.5
+
+import os
+import unittest
 import sys
 sys.path.append('..')
 sys.path.append('../..')
 
-from Common import *
 from common.Utils import *
-
 
 class Ref:
 	Tag =  Enum('', 'summary skill role project employer certification personal')
 	Section =  Enum('', 'unknown default personal summary skill workhistory project education certification address objective')
 	LineType =  Enum('', 'SectionHeader SectionBody Others')
-	DefaultLocation =  'others'
+	DefaultLocation =  'location-not-found'
 	LocationDict = {
 				'bengaluru' : 'bangalore',
 				'bangalore' : 'bangalore',
@@ -44,14 +45,106 @@ class Ref:
 				'ahmedabad' : 'ahmedabad',
 		}
 
-	def getLocation(line):
-		wordList = Common.wordTokenize(line)
-		location = ''
+	DefaultEducation =  'edu-not-found'
+	EducationDict = { 
+			'be'   : 'BE',
+			'btech' : 'B-Tech',
+
+			'bachelor' : 'Bachelor',
+			'master' : 'Master',
+
+			'technology' : 'technology',
+			'engineering' : 'engineering',
+			'science' : 'Science',
+			'commerce' : 'Commerce',
+			'arts' : 'Art',
+			'finance' : 'finance',
+			'marketing' : 'marketing',
+
+			'bsc' : 'Bsc',
+			'bcom' : 'BCom',
+			'ba' : 'BA',
+			'bba' : 'BBA',
+			'cfa' : 'CFA',
+
+			'msc' : 'Msc',
+			'mca' : 'MCA',
+			'mba' : 'MBA'
+	}
+
+	#--------------------------------------------------
+	# Finds matching word from line in the specified
+	# searchDict.
+	# @param Line containing words to be searched.
+	# @param searchDict Dict to be searched
+	# @param defaultWhenNotFound 
+	# @return list containing lookup result.
+	#--------------------------------------------------
+	def lookupFromDict(line, searchDict, defaultWhenNotFound, findAll=False):
+		wordList = Utils.mysplit(line, True)
+
+		lookupResultArr = []
 		for word in wordList:
-			location = Ref.LocationDict.get(word, Ref.DefaultLocation)
-			if (location != Ref.DefaultLocation):
-				return location
+			result = searchDict.get(word, defaultWhenNotFound)
+			if (result != defaultWhenNotFound):
+				lookupResultArr.append(result)
+				if (not findAll):
+					break
 
-		return location
+		if (len(lookupResultArr) == 0):
+			lookupResultArr.append(defaultWhenNotFound)
 
+		# Remove dups
+		return Utils.removeDups(lookupResultArr)
 
+	#--------------------------------------------------
+	# Lookup matching location
+	# @param Line containing keywords to be lookedup
+	# @return list contains lookedup values
+	#--------------------------------------------------
+	def findLocation(line):
+		return Ref.lookupFromDict(line, Ref.LocationDict, Ref.DefaultLocation, True)
+
+	#--------------------------------------------------
+	# Lookup matching education
+	# @param Line containing keywords to be lookedup
+	# @return list contains lookedup values
+	#--------------------------------------------------
+	def findEducation(line):
+		return Ref.lookupFromDict(line, Ref.EducationDict, Ref.DefaultEducation, True)
+
+#---------------------------------------------------------------
+# Unit tests
+#---------------------------------------------------------------
+class TestThisClass(unittest.TestCase):
+
+	def test_lookupFromDict(self):
+
+		# ----------------------
+		line = 'places visited bengaluru chennai mumbai'
+		toks = Ref.lookupFromDict(line, Ref.LocationDict, Ref.DefaultLocation, True)
+		self.assertEqual(3, len(toks))
+
+		# ----------------------
+		line = 'places visited bengaluru bangalore bombay mumbai'
+		toks = Ref.lookupFromDict(line, Ref.LocationDict, Ref.DefaultLocation, True)
+		self.assertEqual(2, len(toks))
+
+		# ----------------------
+		line = 'places visited bangalore-32'
+		toks = Ref.lookupFromDict(line, Ref.LocationDict, Ref.DefaultLocation, True)
+		self.assertEqual(1, len(toks))
+		self.assertEqual('bangalore', toks[0])
+
+		# ----------------------
+		line = 'places visited somecity'
+		toks = Ref.lookupFromDict(line, Ref.LocationDict, Ref.DefaultLocation, True)
+		self.assertEqual(1, len(toks))
+		self.assertEqual(Ref.DefaultLocation, toks[0])
+
+# Run unit tests
+#if __name__ == '__main__':
+#unittest.main()
+logging.basicConfig(level=logging.INFO)
+suite = unittest.TestLoader().loadTestsFromTestCase(TestThisClass)
+unittest.TextTestRunner(verbosity=2).run(suite)

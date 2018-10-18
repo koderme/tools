@@ -7,7 +7,6 @@ sys.path.append('..')
 sys.path.append('../..')
 
 from common.Utils import *
-from Common import *
 from rules.CvParseRules import *
 from model.ReferenceData import *
 from model.CvContent import *

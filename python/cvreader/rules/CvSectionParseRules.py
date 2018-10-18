@@ -3,12 +3,13 @@
 import os
 import unittest
 import sys
+sys.path.append('.')
 sys.path.append('..')
 sys.path.append('../..')
 
+from common.Utils import *
 from model.ReferenceData import *
 from rules.CvParseRules import *
-from common.Utils import *
 
 #-----------------------------------------------------
 # Helper functions
@@ -42,6 +43,22 @@ def parseSkill(sentenceList, prDict):
 	skillList = []
 	for line in sentenceList:
 		skillList.extend(split_1_then_2(line, ':', ','))
+
+	prDict[Ref.Section.skill.name] = skillList
+
+#-----------------------------------------------------
+# It parses the lines in specified CvSection
+# The lines being parsed are expected in below format:
+# e.g.: operating systems     :    windows  and unix
+# e.g.: core  java, servlets, jsp, jdbc
+#
+# @param sentenceList list of sentences to be parsed.
+# @param prDict where results will be stored.
+#-----------------------------------------------------
+def parseEducation(sentenceList, prDict):
+	for line in sentenceList:
+		line.find('BE') 
+		TODO
 
 	prDict[Ref.Section.skill.name] = skillList
 
@@ -91,21 +108,21 @@ def parseDefault(sentenceList, prDict):
 #-----------------------------------------------------
 def parsePersonal(sentenceList, prDict):
 
-	location = Ref.DefaultLocation
+	locationList = []
 
 	for line in sentenceList:
-		# Fetch location
-		if (location != Ref.DefaultLocation):
-			break
 
-		location = Ref.getLocation(line)
+		currLocList = Ref.findLocation(line)
+		logging.debug('location:' + str(currLocList))
 	
-	prDict['location'] = location
+		locationList.extend(currLocList)
+	
+	prDict['location'] = Utils.removeDups(locationList)
 
 #------------------------------------------
 # Unit test
 #------------------------------------------
-class TestThisClass(unittest.TestCase):
+class TestCvSectionParseRules(unittest.TestCase):
 
 	# ----------- parseSkill ----------
 	def test_parseSkill_with_colon(self):
@@ -177,11 +194,12 @@ class TestThisClass(unittest.TestCase):
 		prDict = {}
 		parsePersonal(lines, prDict)
 		self.assertEqual(1, len(prDict))
-		self.assertEqual('bangalore', prDict['location'])
+		self.assertEqual(2, len(prDict['location']))
+		self.assertEqual('bangalore', prDict['location'][1])
 
 
 # Run unit tests
 #if __name__ == '__main__':
 #unittest.main()
-suite = unittest.TestLoader().loadTestsFromTestCase(TestThisClass)
+suite = unittest.TestLoader().loadTestsFromTestCase(TestCvSectionParseRules)
 unittest.TextTestRunner(verbosity=2).run(suite)

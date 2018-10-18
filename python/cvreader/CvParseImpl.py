@@ -8,7 +8,6 @@ sys.path.append('..')
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 from common.Utils import *
-from Common import *
 from schema.CvSchema import *
 from model.CvParseResult import *
 from rules.CvParseRules import *

@@ -4,6 +4,7 @@ import os
 import re
 import unittest
 import sys
+sys.path.append('.')
 sys.path.append('..')
 sys.path.append('../..')
 
@@ -22,13 +23,15 @@ from common.Utils import *
 # 
 #---------------------------------------------------
 
+REMOVE_EMPTY_STR = True
+
 class CvParseRules:
 	# Identify line
 	def getLineType(line):
-		wordList = Common.wordTokenize(line)
+		wordList = Utils.mysplit(line, REMOVE_EMPTY_STR)
 		retType = Ref.LineType.Others.name
 		wLen = len(wordList)
-
+		logging.debug('line=[' + line + '] wordList=[' + str(wordList) + ']')
 		if (wLen == 0):
 			retType = Ref.LineType.Others.name
 		elif ((wLen >= 1) and (wLen <= 3)):

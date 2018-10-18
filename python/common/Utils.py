@@ -2,10 +2,13 @@
 
 import datetime
 import time
+import re
 import os
 import distutils.dir_util
 import logging
 import shutil
+import unittest
+
 from enum import Enum
 
 class Utils:
@@ -45,8 +48,99 @@ class Utils:
 
 		return lineList
 
+	# It tokenizes the specified line.
+	# @param line
+	# @return list of words with length > 1
+	#
+	def wordTokenize_(line):
+		wordList = line.split(' ')
+		return list(filter(lambda x: len(x) > 1, wordList))
+
+	# It tokenizes the specified line using nltp.
+	# @param line
+	# @return list of words with length > 1
+	#
+	def wordTokenizeNltk(line):
+		wordList = word_tokenize(line)
+		return list(filter(lambda x: len(x) > 1, wordList))
+
+
+	#--------------------------------------------------
+	# Split the line using delimiters which are non-words
+	# @param Line to be split
+	# @param maxsplit
+	# @return List contains words
+	#--------------------------------------------------
+	def mysplit(inStr, removeEmptyStr):
+		wordList = re.split(r'\s+|\W+', inStr, 0)
+		if (removeEmptyStr):
+			return list(filter(lambda x: len(x) > 1, wordList))
+		return wordList
+
+	def removeDups(inList):
+		return list(set(inList))
+
+
 #----------------------------------------
 # MyEnum
 #----------------------------------------
 def MyEnum(**enums):
 	return type('Enum', (), enums)
+
+#---------------------------------------------------------------
+# Unit tests
+#---------------------------------------------------------------
+class TestThisClass(unittest.TestCase):
+
+	def test_mysplit_retain_empty(self):
+
+		DONT_REMOVE_EMPTY_STR = False
+		# ----------------------
+		toks = Utils.mysplit('hello how are you', DONT_REMOVE_EMPTY_STR)
+		self.assertEqual(4, len(toks))
+		# ----------------------
+		toks = Utils.mysplit('hello how|are you', DONT_REMOVE_EMPTY_STR)
+		self.assertEqual(4, len(toks))
+		# ----------------------
+		toks = Utils.mysplit('hello how|are,you', DONT_REMOVE_EMPTY_STR)
+		self.assertEqual(4, len(toks))
+		# ----------------------
+		toks = Utils.mysplit('hello   how     are\nyou', DONT_REMOVE_EMPTY_STR)
+		self.assertEqual(4, len(toks))
+
+		# ----------------------
+		toks = Utils.mysplit('', DONT_REMOVE_EMPTY_STR)
+		self.assertEqual(1, len(toks))
+		# ----------------------
+		toks = Utils.mysplit(' 	\n', DONT_REMOVE_EMPTY_STR)
+		self.assertEqual(2, len(toks))
+
+	def test_mysplit_remove_empty(self):
+
+		REMOVE_EMPTY_STR = True
+		# ----------------------
+		toks = Utils.mysplit('hello how are you', REMOVE_EMPTY_STR)
+		self.assertEqual(4, len(toks))
+		# ----------------------
+		toks = Utils.mysplit('hello how|are you', REMOVE_EMPTY_STR)
+		self.assertEqual(4, len(toks))
+		# ----------------------
+		toks = Utils.mysplit('hello how|are,you', REMOVE_EMPTY_STR)
+		self.assertEqual(4, len(toks))
+		# ----------------------
+		toks = Utils.mysplit('hello   how     are\nyou', REMOVE_EMPTY_STR)
+		self.assertEqual(4, len(toks))
+
+		# ----------------------
+		toks = Utils.mysplit('', REMOVE_EMPTY_STR)
+		self.assertEqual(0, len(toks))
+		# ----------------------
+		toks = Utils.mysplit(' 	\n', REMOVE_EMPTY_STR)
+		self.assertEqual(0, len(toks))
+
+
+# Run unit tests
+#if __name__ == '__main__':
+#unittest.main()
+suite = unittest.TestLoader().loadTestsFromTestCase(TestThisClass)
+unittest.TextTestRunner(verbosity=2).run(suite)
