@@ -48,13 +48,6 @@ class Utils:
 
 		return lineList
 
-	# It tokenizes the specified line.
-	# @param line
-	# @return list of words with length > 1
-	#
-	def wordTokenize_(line):
-		wordList = line.split(' ')
-		return list(filter(lambda x: len(x) > 1, wordList))
 
 	# It tokenizes the specified line using nltp.
 	# @param line
@@ -64,6 +57,8 @@ class Utils:
 		wordList = word_tokenize(line)
 		return list(filter(lambda x: len(x) > 1, wordList))
 
+	def stripWordsInList(wordList):
+		return list(map(lambda x:x.strip(), wordList))
 
 	#--------------------------------------------------
 	# Split the line using delimiters which are non-words
@@ -138,6 +133,13 @@ class TestThisClass(unittest.TestCase):
 		toks = Utils.mysplit(' 	\n', REMOVE_EMPTY_STR)
 		self.assertEqual(0, len(toks))
 
+	def test_stripWordsInList(self):
+		wordList = [ ' test0', ' test1 ' , '    	test2		' ]
+		strippedList = Utils.stripWordsInList(wordList)
+
+		self.assertEqual('test0', strippedList[0])
+		self.assertEqual('test1', strippedList[1])
+		self.assertEqual('test2', strippedList[2])
 
 # Run unit tests
 #if __name__ == '__main__':

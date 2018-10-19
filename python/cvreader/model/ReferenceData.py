@@ -47,29 +47,29 @@ class Ref:
 
 	DefaultEducation =  'edu-not-found'
 	EducationDict = { 
-			'be'   : 'BE',
-			'btech' : 'B-Tech',
+			'be'   : 'be',
+			'btech' : 'btech',
 
-			'bachelor' : 'Bachelor',
-			'master' : 'Master',
+			'bachelor' : 'bachelor',
+			'master' : 'master',
 
 			'technology' : 'technology',
 			'engineering' : 'engineering',
-			'science' : 'Science',
-			'commerce' : 'Commerce',
-			'arts' : 'Art',
+			'science' : 'science',
+			'commerce' : 'commerce',
+			'arts' : 'art',
 			'finance' : 'finance',
 			'marketing' : 'marketing',
 
-			'bsc' : 'Bsc',
-			'bcom' : 'BCom',
-			'ba' : 'BA',
-			'bba' : 'BBA',
-			'cfa' : 'CFA',
+			'bsc' : 'bsc',
+			'bcom' : 'bCom',
+			'ba' : 'ba',
+			'bba' : 'bba',
+			'cfa' : 'cfa',
 
-			'msc' : 'Msc',
-			'mca' : 'MCA',
-			'mba' : 'MBA'
+			'msc' : 'msc',
+			'mca' : 'mca',
+			'mba' : 'mba'
 	}
 
 	#--------------------------------------------------

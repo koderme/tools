@@ -11,18 +11,25 @@ from common.Utils import *
 from model.ReferenceData import *
 from rules.CvParseRules import *
 
+Attr =  Enum('', 'value emailid name phone')
+
 #-----------------------------------------------------
-# Helper functions
+# Split by splitChar1.
+# If first split results in 1 token,
+#    nextSplitTok = first token is used.
+#  else
+#    nextSplitTok = second token is used.
+# nextSplitTok is then splitted by splitChar2
 #-----------------------------------------------------
 def split_1_then_2(line, splitChar1, splitChar2):
 	firstSplitToks = line.split(splitChar1)
 
 	# Doesnt have splitChar1
 	if (len(firstSplitToks) == 1):
-		return firstSplitToks[0].split(splitChar2)
+		return Utils.stripWordsInList(firstSplitToks[0].split(splitChar2))
 
 	# Has splitChar1
-	return firstSplitToks[1].split(splitChar2)
+	return Utils.stripWordsInList(firstSplitToks[1].split(splitChar2))
 	
 #-----------------------------------------------------
 # Nothing to be done
@@ -44,7 +51,7 @@ def parseSkill(sentenceList, prDict):
 	for line in sentenceList:
 		skillList.extend(split_1_then_2(line, ':', ','))
 
-	prDict[Ref.Section.skill.name] = skillList
+	prDict[Attr.value.name] = Utils.removeDups(skillList)
 
 #-----------------------------------------------------
 # It parses the lines in specified CvSection
@@ -56,11 +63,17 @@ def parseSkill(sentenceList, prDict):
 # @param prDict where results will be stored.
 #-----------------------------------------------------
 def parseEducation(sentenceList, prDict):
+	eduList = []
 	for line in sentenceList:
-		line.find('BE') 
-		TODO
+		temp1 = re.sub('b\.\s*e\.*\s+', 'be ', line.lower())
+		temp2 = re.sub('b\.\s*tech\.*\s+', 'btech ', temp1)
 
-	prDict[Ref.Section.skill.name] = skillList
+		logging.debug('massaged-line:' +temp2)
+		eduList.extend(Ref.findEducation(temp2))
+
+	prDict[Attr.value.name] = Utils.removeDups(eduList)
+
+	logging.debug('prdict:' + str(prDict))
 
 #-----------------------------------------------------
 # It parses the lines in specified CvSection
@@ -93,9 +106,9 @@ def parseDefault(sentenceList, prDict):
 	# Remove tags from name
 	name = split_1_then_2(name, ':', '__anything__')[0].strip()
 
-	prDict['emailid'] = emailIdList
-	prDict['phone'] = phoneList
-	prDict['name'] = name
+	prDict[Attr.emailid.name] = emailIdList
+	prDict[Attr.phone.name] = phoneList
+	prDict[Attr.name.name] = name
 
 #-----------------------------------------------------
 # It parses the lines in specified CvSection
@@ -117,7 +130,7 @@ def parsePersonal(sentenceList, prDict):
 	
 		locationList.extend(currLocList)
 	
-	prDict['location'] = Utils.removeDups(locationList)
+	prDict[Attr.value.name] = Utils.removeDups(locationList)
 
 #------------------------------------------
 # Unit test
@@ -136,7 +149,7 @@ class TestCvSectionParseRules(unittest.TestCase):
 		parseSkill(lines, prDict)
 
 		self.assertEqual(1, len(prDict))
-		self.assertEqual(7, len(prDict[Ref.Section.skill.name]))
+		self.assertEqual(7, len(prDict[Attr.value.name]))
 
 	# ----------- parseSkill ----------
 	def test_parseSkill_nocolon(self):
@@ -150,7 +163,7 @@ class TestCvSectionParseRules(unittest.TestCase):
 		parseSkill(lines, prDict)
 
 		self.assertEqual(1, len(prDict))
-		self.assertEqual(7, len(prDict[Ref.Section.skill.name]))
+		self.assertEqual(7, len(prDict[Attr.value.name]))
 
 	# ----------- parseDefault ----------
 	def test_parseDefault(self):
@@ -163,7 +176,7 @@ class TestCvSectionParseRules(unittest.TestCase):
 		prDict = {}
 		parseDefault(lines, prDict)
 		self.assertEqual(3, len(prDict))
-		self.assertEqual('first.last@gmail.com', prDict['emailid'][0])
+		self.assertEqual('first.last@gmail.com', prDict[Attr.emailid.name][0])
 		#self.assertEqual('+91 1112223344', cvSec.getParseResult()['phone'][0])
 		self.assertEqual('First Last', prDict['name'])
 
@@ -178,7 +191,7 @@ class TestCvSectionParseRules(unittest.TestCase):
 		prDict = {}
 		parseDefault(lines, prDict)
 		self.assertEqual(3, len(prDict))
-		self.assertEqual('first.last@gmail.com', prDict['emailid'][0])
+		self.assertEqual('first.last@gmail.com', prDict[Attr.emailid.name][0])
 		#self.assertEqual('+91 1112223344', cvSec.getParseResult()['phone'][0])
 		self.assertEqual('First Last', prDict['name'])
 
@@ -194,12 +207,46 @@ class TestCvSectionParseRules(unittest.TestCase):
 		prDict = {}
 		parsePersonal(lines, prDict)
 		self.assertEqual(1, len(prDict))
-		self.assertEqual(2, len(prDict['location']))
-		self.assertEqual('bangalore', prDict['location'][1])
+		self.assertEqual(2, len(prDict[Attr.value.name]))
+		self.assertEqual(True , 'bangalore' in prDict[Attr.value.name])
 
+	# ----------- parseEducation ----------
+	def test_parseEducation(self):
+		lines = []
+		lines.append('B.E in electronics')
+		lines.append('HSC from abc college')
+		lines.append('SSC from abc college')
+		prDict = {}
+		parseEducation(lines, prDict)
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(True , 'be' in prDict[Attr.value.name])
+
+		lines = []
+		lines.append('. B. tech  in electronics')
+		lines.append('HSC from abc college')
+		lines.append('SSC from abc college')
+		prDict = {}
+		parseEducation(lines, prDict)
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(True , 'btech' in prDict[Attr.value.name])
+
+		lines = []
+		lines.append('...Bachelor in Arts... From Bangalore')
+		lines.append('HSC from abc college in chennai')
+		lines.append('SSC from abc college mumbai...')
+		prDict = {}
+		parseEducation(lines, prDict)
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(True , 'bachelor' in prDict[Attr.value.name])
+		self.assertEqual(True , 'art' in prDict[Attr.value.name])
+		
 
 # Run unit tests
 #if __name__ == '__main__':
 #unittest.main()
+logging.basicConfig(level=logging.INFO)
 suite = unittest.TestLoader().loadTestsFromTestCase(TestCvSectionParseRules)
 unittest.TextTestRunner(verbosity=2).run(suite)
