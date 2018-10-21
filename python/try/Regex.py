@@ -18,10 +18,20 @@ class MyClass:
 	# re.search matches anywhere in string
 	def search(regex, str1):
 		resultObj = re.search(regex, str1, re.I)
+
+		print('result:' + str(resultObj))
 		if (resultObj):
 			return True
 		else:
 			return False
+
+	# re.search matches anywhere in string
+	def searchWithGroup(regex, str1):
+		resultObj = re.search(regex, str1, re.I)
+		if (resultObj):
+			return float(resultObj.group(1))
+		else:
+			return -1
 
 #------------------------------------------
 # Unit test
@@ -72,6 +82,29 @@ class TestMyClass(unittest.TestCase):
 		self.assertEqual(True, MyClass.search(re1, 'testing'))
 		self.assertEqual(False, MyClass.search(re1,'intestxxx'))
 		self.assertEqual(False, MyClass.search(re1,'tesx'))
+
+	def test_search4(self):
+		re1 = r'(\d{1,2}.\d{0,2}|\d{1,2}\.\d{1,2}).*(years|yr).*(experience)'
+		x = MyClass.searchWithGroup(re1, 'i have 12 years of experience in')
+		self.assertEquals(12, x)
+		x = MyClass.searchWithGroup(re1, 'i have 12. years of experience in')
+		self.assertEquals(12, x)
+		x = MyClass.searchWithGroup(re1, 'i have 12.3 years of experience in')
+		self.assertEquals(12.3, x)
+		x = MyClass.searchWithGroup(re1, 'i have 12.34 years of experience in')
+		self.assertEquals(12.34, x)
+		x = MyClass.searchWithGroup(re1, 'i have 11.345 years of experience in')
+		self.assertEquals(11.34, x)
+		x = MyClass.searchWithGroup(re1, 'i have  0.34 years of experience in')
+		self.assertEquals(0.34, x)
+		x = MyClass.searchWithGroup(re1, 'i have  0.22. years of experience in')
+		self.assertEquals(0.22, x)
+		x = MyClass.searchWithGroup(re1, 'i have  0.33. yr of experience in')
+		self.assertEquals(0.33, x)
+		x = MyClass.searchWithGroup(re1, 'i have 44.55years of experience in')
+		self.assertEquals(44.55, x)
+		x = MyClass.searchWithGroup(re1, 'i have 55.66 years sd e  experience in')
+		self.assertEquals(55.66, x)
 
 # Run unit tests
 #if __name__ == '__main__':

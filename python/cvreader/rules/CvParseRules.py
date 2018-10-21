@@ -25,6 +25,12 @@ logger = logging.getLogger('cvreader')
 #---------------------------------------------------
 
 class CvParseRules:
+	def isMatchingKnownHeader(wordList):
+		for word in wordList:
+			if word in Ref.PossibleSectionHeader:
+				return True
+		return False
+
 	# Identify line
 	def getLineType(line):
 		wordList = Utils.getWords(line)
@@ -33,7 +39,9 @@ class CvParseRules:
 		logger.debug('line=[' + line + '] wordList=[' + str(wordList) + ']')
 		if (wLen == 0):
 			retType = Ref.LineType.Others.name
-		elif ((wLen >= 1) and (wLen <= 2)):
+		elif ((wLen >= 1) and
+				(wLen <= 2) and
+				CvParseRules.isMatchingKnownHeader(wordList)):
 			retType = Ref.LineType.SectionHeader.name
 		else:
 			retType = Ref.LineType.SectionBody.name
@@ -69,7 +77,7 @@ class TestCvParseRules(unittest.TestCase):
 		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRules.getLineType(line))
 		# 
 		line = 'xxx YYY :'
-		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRules.getLineType(line))
+		self.assertEqual(Ref.LineType.SectionBody.name, CvParseRules.getLineType(line))
 
 	def test_SectionBody(self):
 

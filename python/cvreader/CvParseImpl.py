@@ -14,6 +14,7 @@ from rules.CvParseRules import *
 
 from CvParse import *
 
+logger = logging.getLogger('cvreader')
 
 #-------------------------------------------------------------
 # CvParseImpl provides implementation for parsing text CV.
@@ -24,7 +25,7 @@ class CvParseImpl(CvParse):
 
 	def __init__(self, inFilepath):
 		self.inFilepath = inFilepath
-		logging.debug('schema:' + str(CvParseImpl.schema))
+		logger.debug('schema:' + str(CvParseImpl.schema))
 
 	#--------------------------------------------------------
 	# Its parses the specified lines below steps:
@@ -37,20 +38,21 @@ class CvParseImpl(CvParse):
 		# Build the content
 		content = CvParseImpl.schema.buildContent(lineList)
 
-		logging.info('--------content------------')
-		logging.info(str(content))
+		logger.info('--------content------------')
+		logger.info(str(content))
 
 		# Parse the content
 		parseResult = CvParseResult()
-		for secName, sentList in content.getContentDict().items():
-			parseFunc = CvParseImpl.schema.getParseFunc(secName)	
-			attrDict = parseResult.getSectionDict(secName)
+		logger.info('number of sections in content :' + str(len(content.getSecContentList())))
+		for secContent in content.getSecContentList():
+			parseFunc = CvParseImpl.schema.getParseFunc(secContent.getSecName())
+			attrDict = parseResult.getSectionDict(secContent.getSecName())
 
 			if (parseFunc == None):
-				logging.error('No parse function defined for section:' + secName)
+				logger.error('No parse function defined for section:' + secName)
 				continue
 
-			parseFunc(sentList, attrDict)
+			parseFunc(secContent.getLineList(), attrDict)
 
 		return parseResult
 
@@ -59,13 +61,13 @@ class CvParseImpl(CvParse):
 #---------------------------------------------------------------
 class TestCvParseImpl(unittest.TestCase):
 
-	def test_default_dict_size(self):
-		pass
+	def test_constr(self):
+		obj = CvParseImpl('temp/developer.txt')
+		obj.parse()
 
 
 # Run unit tests
 #if __name__ == '__main__':
 #unittest.main()
-logging.basicConfig(level=logging.INFO)
 suite = unittest.TestLoader().loadTestsFromTestCase(TestCvParseImpl)
 unittest.TextTestRunner(verbosity=2).run(suite)

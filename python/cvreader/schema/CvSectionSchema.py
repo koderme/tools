@@ -14,7 +14,7 @@ from rules.CvSectionParseRules import *
 logger = logging.getLogger('cvreader')
 
 #---------------------------------------------------
-# CvSection represents 1 section of Cv.
+# CvSectionSchema represents 1 section of Cv.
 # It stores following metadata
 #    secName
 #         -- name of the section
@@ -22,7 +22,7 @@ logger = logging.getLogger('cvreader')
 #         -- Its used to identify start of section.
 #         -- if line is identified as <SectionHeader> and 
 #            it matches <secTagRe>
-#            then its marked as <CvSection>
+#            then its marked as <CvSectionSchema>
 #    parseFunc
 #         -- Function that would be executed for
 #            parsing <line list>
@@ -30,7 +30,7 @@ logger = logging.getLogger('cvreader')
 #         -- dict containing parse results
 #---------------------------------------------------
 
-class CvSection:
+class CvSectionSchema:
 	def __init__(self, secName, secTagRe, parseFunc=None):
 		self.secName = secName
 		self.secTagRe = secTagRe
@@ -54,11 +54,11 @@ class CvSection:
 #------------------------------------------
 # Unit test
 #------------------------------------------
-class TestCvSection(unittest.TestCase):
+class TestCvSectionSchema(unittest.TestCase):
 
 	def test_constructor(self):
 		#
-		cvSection = CvSection('sec1', '(tag1|tag2)', 'some-func')
+		cvSection = CvSectionSchema('sec1', '(tag1|tag2)', 'some-func')
 		self.assertEqual('sec1', cvSection.getSecName())
 		self.assertEqual('(tag1|tag2)', cvSection.getSecTagRe())
 		self.assertEqual('some-func', cvSection.getParseFunc())
@@ -68,5 +68,5 @@ class TestCvSection(unittest.TestCase):
 # Run unit tests
 #if __name__ == '__main__':
 #unittest.main()
-suite = unittest.TestLoader().loadTestsFromTestCase(TestCvSection)
+suite = unittest.TestLoader().loadTestsFromTestCase(TestCvSectionSchema)
 unittest.TextTestRunner(verbosity=2).run(suite)

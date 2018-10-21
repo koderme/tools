@@ -9,7 +9,7 @@ sys.path.append('../..')
 
 from common.Utils import *
 
-from schema.CvSection import *
+from schema.CvSectionSchema import *
 from model.ReferenceData import *
 from rules.CvSectionParseRules import *
 
@@ -26,42 +26,43 @@ class CvSchemaBuilder:
 		sections = []
 
 
-		sec = CvSection(Ref.Section.personal.name,
+		sec = CvSectionSchema(Ref.Section.personal.name,
 					'(personal|aboutme)',
 					parsePersonal)
 		sections.append(sec)
 
-		sec = CvSection(Ref.Section.summary.name,
-					'(professional\s+summary|profile\s+summary)')
+		sec = CvSectionSchema(Ref.Section.summary.name,
+					'((professional|profile|experience)\s+summary)',
+					parseSummary)
 		sections.append(sec)
 
-		sec = CvSection(Ref.Section.skill.name,
+		sec = CvSectionSchema(Ref.Section.skill.name,
 					'(skill|skills|skillset)',
 					parseSkill)
 		sections.append(sec)
 
-		sec = CvSection(Ref.Section.workhistory.name,
+		sec = CvSectionSchema(Ref.Section.workhistory.name,
 					'((work|career)\s+history|experience)')
 		sections.append(sec)
 
-		sec = CvSection(Ref.Section.project.name,
+		sec = CvSectionSchema(Ref.Section.project.name,
 					'(project\s+summary|assignment\s+history|project)')
 		sections.append(sec)
 
-		sec = CvSection(Ref.Section.education.name,
+		sec = CvSectionSchema(Ref.Section.education.name,
 					'(qualification|education|scholastic)',
 					parseEducation)
 		sections.append(sec)
 
-		sec = CvSection(Ref.Section.certification.name,
+		sec = CvSectionSchema(Ref.Section.certification.name,
 					'(certification|certified)')
 		sections.append(sec)
 
-		sec = CvSection(Ref.Section.address.name,
+		sec = CvSectionSchema(Ref.Section.address.name,
 					'(address|residence)')
 		sections.append(sec)
 
-		sec = CvSection(Ref.Section.objective.name,
+		sec = CvSectionSchema(Ref.Section.objective.name,
 					'(objective)')
 		sections.append(sec)
 
@@ -72,7 +73,7 @@ class CvSchemaBuilder:
 		return sections
 
 	def getDefaultSection():
-		return CvSection(Ref.Section.default.name, '.*', parseDefault)
+		return CvSectionSchema(Ref.Section.default.name, '.*', parseDefault)
 
 #---------------------------------------------------------------
 # Unit tests

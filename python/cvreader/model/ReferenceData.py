@@ -11,6 +11,15 @@ from common.Utils import *
 class Ref:
 	Tag =  Enum('', 'summary skill role project employer certification personal')
 	Section =  Enum('', 'unknown default personal summary skill workhistory project education certification address objective')
+
+	PossibleSectionHeader = [
+			'personal', 'aboutme', 'professional', 'profile',
+			'experience', 'summary', 'skill', 'work',
+			'career', 'history', 'assignment', 'scholastic',
+			'education', 'qualification', 'cerfitication', 'certified',
+			'project', 'objective', 'address', 'residence',
+		]
+
 	LineType =  Enum('', 'SectionHeader SectionBody Others')
 	DefaultLocation =  'location-not-found'
 	LocationDict = {

@@ -9,66 +9,66 @@ sys.path.append('../..')
 
 from common.Utils import *
 from model.ReferenceData import *
+from model.CvSectionContent import *
 
 logger = logging.getLogger('cvreader')
 
 #-------------------------------------------------------------
-# CvContent is a dictionary of
-#    section-name Vs lineList[]
+# CvContent is list of CvSectionContent
 #-------------------------------------------------------------
 class CvContent:
 	def __init__(self):
-		self.contentDict = {}
+		self.secContentList = []
+		self.curSecContent = None
 
-	def addLine(self, sectionName, line):
-		lineList = self.contentDict.get(sectionName)
-		if (lineList == None):
-			lineList = []
-			self.contentDict[sectionName] = lineList
-		lineList.append(line)
+	def addLine(self, secName, line):
 
-	def getLineList(self, sectionName):
-		lineList = self.contentDict.get(sectionName)
-		if (lineList == None):
-			return []
-		return lineList	
+		if ((self.curSecContent == None) or
+			(self.curSecContent.getSecName() != secName)):
+			self.curSecContent = CvSectionContent(secName)
+			self.secContentList.append(self.curSecContent)
 
-	def getContentDict(self):
-		return self.contentDict
+		self.curSecContent.addLine(line)
+
+	def getSecContent(self, secName):
+		for secContent in self.secContentList:
+			if secContent.getSecName() == secName:
+				return secContent
+		return None
+
+	def getSecContentList(self):
+		return self.secContentList
+
+	def size(self):
+		return len(self.secContentList)
 
 	def __str__(self):
 		retStr = ''
-		for secName,lineList in self.contentDict.items():
-			retStr += '\n---------------' + secName + '---------------'
-			for line in lineList:
-				retStr += '\n' + line
+		for secContent in self.secContentList:
+			retStr += str(secContent)
 		return retStr
 #---------------------------------------------------------------
 # Unit tests
 #---------------------------------------------------------------
-class TestCvContent(unittest.TestCase):
+class TestThisClass(unittest.TestCase):
 
 	def test_get_sentence(self):
 
-		content = CvContent()
+		obj = CvContent()
 
-		content.addLine(Ref.Section.personal.name, 'email: test@gmail.com')
-		content.addLine(Ref.Section.personal.name, 'name: John White')
+		obj.addLine(Ref.Section.personal.name, 'email: test@gmail.com')
+		obj.addLine(Ref.Section.personal.name, 'name: John White')
 
-		lineList = content.getLineList(Ref.Section.personal.name)
-		self.assertEqual(2, len(lineList))
+		obj.addLine(Ref.Section.skill.name, 'java cpp python')
+		obj.addLine(Ref.Section.skill.name, 'unix ml')
 
-		content.addLine(Ref.Section.skill.name, 'java cpp python')
-		lineList = content.getLineList(Ref.Section.skill.name)
-		self.assertEqual(1, len(lineList))
-
-		lineList = content.getLineList(Ref.Section.unknown.name)
-		self.assertEqual(0, len(lineList))
-
+		self.assertEqual(2, obj.size())
+		self.assertEqual(Ref.Section.personal.name, obj.getSecContent(Ref.Section.personal.name).getSecName())
+		self.assertEqual(Ref.Section.skill.name, obj.getSecContent(Ref.Section.skill.name).getSecName())
 
 
 # Run unit tests
 #if __name__ == '__main__':
 #unittest.main()
-suite = unittest.TestLoader().loadTestsFromTestCase(TestCvContent)
+suite = unittest.TestLoader().loadTestsFromTestCase(TestThisClass)
 unittest.TextTestRunner(verbosity=2).run(suite)

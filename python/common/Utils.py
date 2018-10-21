@@ -63,18 +63,31 @@ class Utils:
 	#--------------------------------------------------
 	# Split the line using delimiters which are non-words
 	# @param Line to be split
-	# @param maxsplit
 	# @return List contains words
 	#--------------------------------------------------
-	def mysplit(inStr, removeEmptyStr):
-		wordList = re.split(r'\s+|\W+', inStr, 0)
-		if (removeEmptyStr):
-			return list(filter(lambda x: len(x) > 1, wordList))
-		return wordList
+	def getWords(inStr):
+		re1 = r'\w+'
+		list1=re.findall(re1, inStr)
+		return list1 
 
 	def removeDups(inList):
 		return list(set(inList))
 
+	# re.match matches begining of str
+	def match(regex, str1):
+		resultObj = re.match(regex, str1, re.I)
+		if (resultObj):
+			return True
+		else:
+			return False
+
+	# re.search matches anywhere in string
+	def search(regex, str1):
+		resultObj = re.search(regex, str1, re.I)
+		if (resultObj):
+			return True
+		else:
+			return False
 
 #----------------------------------------
 # MyEnum
@@ -87,50 +100,26 @@ def MyEnum(**enums):
 #---------------------------------------------------------------
 class TestThisClass(unittest.TestCase):
 
-	def test_mysplit_retain_empty(self):
-
-		DONT_REMOVE_EMPTY_STR = False
-		# ----------------------
-		toks = Utils.mysplit('hello how are you', DONT_REMOVE_EMPTY_STR)
-		self.assertEqual(4, len(toks))
-		# ----------------------
-		toks = Utils.mysplit('hello how|are you', DONT_REMOVE_EMPTY_STR)
-		self.assertEqual(4, len(toks))
-		# ----------------------
-		toks = Utils.mysplit('hello how|are,you', DONT_REMOVE_EMPTY_STR)
-		self.assertEqual(4, len(toks))
-		# ----------------------
-		toks = Utils.mysplit('hello   how     are\nyou', DONT_REMOVE_EMPTY_STR)
-		self.assertEqual(4, len(toks))
+	def test_getWords(self):
 
 		# ----------------------
-		toks = Utils.mysplit('', DONT_REMOVE_EMPTY_STR)
-		self.assertEqual(1, len(toks))
-		# ----------------------
-		toks = Utils.mysplit(' 	\n', DONT_REMOVE_EMPTY_STR)
-		self.assertEqual(2, len(toks))
-
-	def test_mysplit_remove_empty(self):
-
-		REMOVE_EMPTY_STR = True
-		# ----------------------
-		toks = Utils.mysplit('hello how are you', REMOVE_EMPTY_STR)
+		toks = Utils.getWords('hello how are you')
 		self.assertEqual(4, len(toks))
 		# ----------------------
-		toks = Utils.mysplit('hello how|are you', REMOVE_EMPTY_STR)
+		toks = Utils.getWords('hello how|are you')
 		self.assertEqual(4, len(toks))
 		# ----------------------
-		toks = Utils.mysplit('hello how|are,you', REMOVE_EMPTY_STR)
+		toks = Utils.getWords('hello how|are,you')
 		self.assertEqual(4, len(toks))
 		# ----------------------
-		toks = Utils.mysplit('hello   how     are\nyou', REMOVE_EMPTY_STR)
+		toks = Utils.getWords('hello |||| * . (how)     are\nyou')
 		self.assertEqual(4, len(toks))
 
 		# ----------------------
-		toks = Utils.mysplit('', REMOVE_EMPTY_STR)
+		toks = Utils.getWords('')
 		self.assertEqual(0, len(toks))
 		# ----------------------
-		toks = Utils.mysplit(' 	\n', REMOVE_EMPTY_STR)
+		toks = Utils.getWords(' 	\n')
 		self.assertEqual(0, len(toks))
 
 	def test_stripWordsInList(self):
@@ -140,6 +129,23 @@ class TestThisClass(unittest.TestCase):
 		self.assertEqual('test0', strippedList[0])
 		self.assertEqual('test1', strippedList[1])
 		self.assertEqual('test2', strippedList[2])
+
+
+	def test_search(self):
+		re1 = 'first\s+second'
+		result = Utils.search(re1, 'first second')
+		self.assertEqual(result, True)
+		
+		result = Utils.search(re1, 'first  second')
+		self.assertEqual(result, True)
+		
+		result = Utils.search(re1, 'first          second')
+		self.assertEqual(result, True)
+		
+		result = Utils.search(re1, 'fIrst          secoNd')
+		self.assertEqual(result, True)
+
+
 
 # Run unit tests
 #if __name__ == '__main__':

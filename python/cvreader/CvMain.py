@@ -18,6 +18,7 @@ from model.CvParseResult import *
 #    -- generate report with skill matrix
 #
 
+
 #----------------------------------------
 # Parse command line args
 #----------------------------------------
@@ -34,7 +35,7 @@ def parseArgs(progArgs):
 #----------------------------------------
 def	doAction(cmdArgs):
 
-	logging.info('cmdArgs:' + str(cmdArgs))
+	logger.info('cmdArgs:' + str(cmdArgs))
 	if (cmdArgs.action == 'parse'):
 		doParse(cmdArgs)
 
@@ -42,17 +43,21 @@ def	doAction(cmdArgs):
 # Specific action
 #----------------------------------------
 def doParse(cmdArgs):
-	logging.info('action:' + cmdArgs.action)
+	logger.info('action:' + cmdArgs.action)
 
-	parser = CvParseImpl('temp/developer.txt')
+	parser = CvParseImpl('temp/test.developer.txt')
 	prResult = parser.parse()
-	logging.info('parse-result:' + str(prResult))
+	logger.info('parse-result:' + str(prResult))
 	
 
 #----------------------------------------
 # Main
 #----------------------------------------
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('cvreader')
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler('./debug.log')
+fh.setLevel(logging.DEBUG)
+logger.addHandler(fh)
 
 cmdArgs = parseArgs(sys.argv);
 

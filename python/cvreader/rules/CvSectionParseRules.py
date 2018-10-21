@@ -36,7 +36,7 @@ def split_1_then_2(line, splitChar1, splitChar2):
 #-----------------------------------------------------
 # Nothing to be done
 #-----------------------------------------------------
-def parseNoop(sentenceList, prDict):
+def parseNoop(lineList, prDict):
 	pass
 
 #-----------------------------------------------------
@@ -45,12 +45,12 @@ def parseNoop(sentenceList, prDict):
 # e.g.: operating systems     :    windows  and unix
 # e.g.: core  java, servlets, jsp, jdbc
 #
-# @param sentenceList list of sentences to be parsed.
+# @param lineList list of sentences to be parsed.
 # @param prDict where results will be stored.
 #-----------------------------------------------------
-def parseSkill(sentenceList, prDict):
+def parseSkill(lineList, prDict):
 	skillList = []
-	for line in sentenceList:
+	for line in lineList:
 		skillList.extend(split_1_then_2(line, ':', ','))
 
 	prDict[Attr.value.name] = Utils.removeDups(skillList)
@@ -61,12 +61,12 @@ def parseSkill(sentenceList, prDict):
 # e.g.: operating systems     :    windows  and unix
 # e.g.: core  java, servlets, jsp, jdbc
 #
-# @param sentenceList list of sentences to be parsed.
+# @param lineList list of sentences to be parsed.
 # @param prDict where results will be stored.
 #-----------------------------------------------------
-def parseEducation(sentenceList, prDict):
+def parseEducation(lineList, prDict):
 	eduList = []
-	for line in sentenceList:
+	for line in lineList:
 		temp1 = re.sub('b\.\s*e\.*\s+', 'be ', line.lower())
 		temp2 = re.sub('b\.\s*tech\.*\s+', 'btech ', temp1)
 
@@ -85,14 +85,14 @@ def parseEducation(sentenceList, prDict):
 #   3. If above extraction has no results
 #      it assumes this line to be name.
 #
-# @param sentenceList list of sentences to be parsed.
+# @param lineList list of sentences to be parsed.
 # @param prDict where results will be stored.
 #-----------------------------------------------------
-def parseDefault(sentenceList, prDict):
+def parseDefault(lineList, prDict):
 	emailIdList = []
 	phoneList = []
 	name = ''
-	for line in sentenceList:
+	for line in lineList:
 
 		# Extract email
 		if (len(emailIdList) == 0):
@@ -118,14 +118,14 @@ def parseDefault(sentenceList, prDict):
 #   1. It extracts location
 #   2. It extracts DOB
 #
-# @param sentenceList list of sentences to be parsed.
+# @param lineList list of sentences to be parsed.
 # @param prDict where results will be stored.
 #-----------------------------------------------------
-def parsePersonal(sentenceList, prDict):
+def parsePersonal(lineList, prDict):
 
 	locationList = []
 
-	for line in sentenceList:
+	for line in lineList:
 
 		currLocList = Ref.findLocation(line)
 		logger.debug('location:' + str(currLocList))
@@ -133,6 +133,40 @@ def parsePersonal(sentenceList, prDict):
 		locationList.extend(currLocList)
 	
 	prDict[Attr.value.name] = Utils.removeDups(locationList)
+
+#-----------------------------------------------------
+# Parses the summary section
+#-----------------------------------------------------
+def parseSummary(lineList, prDict):
+
+	# First matching line with below pattern is picked.
+	# Number of years of exprience stored
+
+	for line in lineList:
+		re1 = r'(\d{1,2}.\d{0,2}|\d{1,2}\.\d{1,2}).*(year|yr).*(experience)'	
+		resultObj = re.search(re1, line, re.I)
+		experience = -1
+		if (resultObj):
+			experience = float(resultObj.group(1))
+			break	
+	prDict['experience'] = experience
+
+#-----------------------------------------------------
+# Parses the summary section
+#-----------------------------------------------------
+def parseProject(lineList, prDict):
+
+	techStack = []
+	for line in lineList:
+		result = re.search(r'(environment|tech)')
+		if (result):
+			wordList = Utils.getWords(line)
+			techStack.extend(wordList)
+		
+		# Break when empty line is found
+		TODO
+
+	prDict['TBD'] = experience
 
 #------------------------------------------
 # Unit test
@@ -245,6 +279,31 @@ class TestCvSectionParseRules(unittest.TestCase):
 		self.assertEqual(True , 'bachelor' in prDict[Attr.value.name])
 		self.assertEqual(True , 'art' in prDict[Attr.value.name])
 		
+	# ----------- parseSummary ----------
+	def test_parseSummary(self):
+		lines = []
+		lines.append('i have  0.34 years of experience in')
+		prDict = {}
+		parseSummary(lines, prDict)
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(0.34, prDict['experience'])
+
+		lines = []
+		lines.append('i have  11years of experience in')
+		prDict = {}
+		parseSummary(lines, prDict)
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(11, prDict['experience'])
+
+		lines = []
+		lines.append('i have  12.55yrs of experience in')
+		prDict = {}
+		parseSummary(lines, prDict)
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(1, len(prDict))
+		self.assertEqual(12.55, prDict['experience'])
 
 # Run unit tests
 #if __name__ == '__main__':

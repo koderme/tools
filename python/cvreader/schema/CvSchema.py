@@ -11,7 +11,7 @@ from common.Utils import *
 from rules.CvParseRules import *
 from model.ReferenceData import *
 from model.CvContent import *
-from schema.CvSection import *
+from schema.CvSectionSchema import *
 from schema.CvSchemaBuilder import *
 
 logger = logging.getLogger('cvreader')
@@ -22,19 +22,19 @@ logger = logging.getLogger('cvreader')
 # Once content is build, call parse() to get CvParseResult
 #
 # Composition of CvSchema:
-#    1. CvSchema = CvSection + CvSection + ...
+#    1. CvSchema = CvSectionSchema + CvSectionSchema + ...
 #    2.  
-#        * CvSection starts when any of <SecTag> defined in CvSection is found.
-#        * CvSection ends another Section starts.
+#        * CvSectionSchema starts when any of <SecTag> defined in CvSectionSchema is found.
+#        * CvSectionSchema ends another Section starts.
 #
-# Metadata from CvSection is used to form below dictionaries:
+# Metadata from CvSectionSchema is used to form below dictionaries:
 #
 # secList 
 #    List of section in the order of creation
 #
 # secDict
-#    This dictionary stores <SecName> vs <CvSection> 
-#    for all the CvSection.
+#    This dictionary stores <SecName> vs <CvSectionSchema> 
+#    for all the CvSectionSchema.
 #-------------------------------------------------------------
 class CvSchema:
 	def __init__(self):
@@ -53,7 +53,7 @@ class CvSchema:
 	#--------------------------------------------------------
 	# This is internal method
 	# It updates the dictionaries. 
-	# @param section CvSection that hold metadata.
+	# @param section CvSectionSchema that hold metadata.
 	#--------------------------------------------------------
 	def updateSchema(self, section):
 		self.secList.append(section)
@@ -63,8 +63,8 @@ class CvSchema:
 	#--------------------------------------------------------
 	# Below is the logic used:	
 	# 1. Search the <SecTag> in the <line>.
-	#      If match is found, corr's <CvSection> becomes current.
-	#      else it continues to use prev <CvSection>
+	#      If match is found, corr's <CvSectionSchema> becomes current.
+	#      else it continues to use prev <CvSectionSchema>
 	# 2. Add [line] to identfied CvSchema
 	#
 	# @param listList List of lines to be parsed
@@ -73,16 +73,15 @@ class CvSchema:
 	def buildContent(self, lineList):
 		content = CvContent()
 
-		currCvSec = self.getDetaultCvSection()
+		currCvSec = self.getDetaultCvSectionSchema()
 		for line in lineList:
-
 
 			line = line.strip()
 			if (len(line) <= 1):
 				continue
 			
-			# Find matching CvSection	
-			foundCvSec = self.findCvSection(line)
+			# Find matching CvSectionSchema	
+			foundCvSec = self.findCvSectionSchema(line)
 
 			if (foundCvSec == None):
 				content.addLine(currCvSec.getSecName(), line)
@@ -103,11 +102,11 @@ class CvSchema:
 	# Logic:
 	#    1. Is <line> a SectionHeader
 	#    2. Does <line> contains [SecTag]
-	# If [1] and [2] are true, corr's CvSection
+	# If [1] and [2] are true, corr's CvSectionSchema
 	# is returned, else None.
 	#
 	#--------------------------------------------------------
-	def findCvSection(self, line):
+	def findCvSectionSchema(self, line):
 		lineType = CvParseRules.getLineType(line)
 		logger.debug("line [" + line + "] is a " + lineType)
 		if (lineType != Ref.LineType.SectionHeader.name):
@@ -125,7 +124,7 @@ class CvSchema:
 		return None
 
 	# Helper methods
-	def getDetaultCvSection(self):
+	def getDetaultCvSectionSchema(self):
 		return self.secDict[Ref.Section.default.name]
 
 	def getSecDict(self):
@@ -160,38 +159,38 @@ class TestCvSchema(unittest.TestCase):
 		self.assertNotEqual(0, len(schema.getSecDict()))
 		self.assertEqual(10, len(schema.getSecDict()))
 
-	def test_findCvSection(self):
+	def test_findCvSectionSchema(self):
 
 		schema = CvSchema()
 
-		cvSec = schema.findCvSection('personal')
+		cvSec = schema.findCvSectionSchema('personal')
 		self.assertEqual(Ref.Section.personal.name, cvSec.getSecName())
-		cvSec = schema.findCvSection('aboutme')
+		cvSec = schema.findCvSectionSchema('aboutme')
 		self.assertEqual(Ref.Section.personal.name, cvSec.getSecName())
 
-		cvSec = schema.findCvSection('professional summary')
+		cvSec = schema.findCvSectionSchema('professional summary')
 		self.assertEqual(Ref.Section.summary.name, cvSec.getSecName())
 
-		cvSec = schema.findCvSection('career history')
+		cvSec = schema.findCvSectionSchema('career history')
 		self.assertEqual(Ref.Section.workhistory.name, cvSec.getSecName())
-		cvSec = schema.findCvSection('work history')
+		cvSec = schema.findCvSectionSchema('work history')
 		self.assertEqual(Ref.Section.workhistory.name, cvSec.getSecName())
-		cvSec = schema.findCvSection('experience')
+		cvSec = schema.findCvSectionSchema('experience')
 		self.assertEqual(Ref.Section.workhistory.name, cvSec.getSecName())
 
-		cvSec = schema.findCvSection('project summary')
+		cvSec = schema.findCvSectionSchema('project summary')
 		self.assertEqual(Ref.Section.project.name, cvSec.getSecName())
 
-		cvSec = schema.findCvSection('address')
+		cvSec = schema.findCvSectionSchema('address')
 		self.assertEqual(Ref.Section.address.name, cvSec.getSecName())
-		cvSec = schema.findCvSection('residence')
+		cvSec = schema.findCvSectionSchema('residence')
 		self.assertEqual(Ref.Section.address.name, cvSec.getSecName())
 
-	def test_findCvSection_default(self):
+	def test_findCvSectionSchema_default(self):
 
 		schema = CvSchema()
 
-		cvSec = schema.findCvSection('XyZ Abc ')
+		cvSec = schema.findCvSectionSchema('XyZ Abc ')
 		defaultSec = CvSchemaBuilder.getDefaultSection()
 		self.assertNotEqual(None, cvSec)
 		self.assertEqual(defaultSec.getSecName(), cvSec.getSecName())
