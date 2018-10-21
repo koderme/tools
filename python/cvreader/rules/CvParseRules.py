@@ -13,6 +13,7 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from model.ReferenceData import *
 from common.Utils import *
 
+logger = logging.getLogger('cvreader')
 
 #---------------------------------------------------
 # CvParseRules maintains collections of rules used for
@@ -23,18 +24,16 @@ from common.Utils import *
 # 
 #---------------------------------------------------
 
-REMOVE_EMPTY_STR = True
-
 class CvParseRules:
 	# Identify line
 	def getLineType(line):
-		wordList = Utils.mysplit(line, REMOVE_EMPTY_STR)
+		wordList = Utils.getWords(line)
 		retType = Ref.LineType.Others.name
 		wLen = len(wordList)
-		logging.debug('line=[' + line + '] wordList=[' + str(wordList) + ']')
+		logger.debug('line=[' + line + '] wordList=[' + str(wordList) + ']')
 		if (wLen == 0):
 			retType = Ref.LineType.Others.name
-		elif ((wLen >= 1) and (wLen <= 3)):
+		elif ((wLen >= 1) and (wLen <= 2)):
 			retType = Ref.LineType.SectionHeader.name
 		else:
 			retType = Ref.LineType.SectionBody.name
@@ -69,7 +68,7 @@ class TestCvParseRules(unittest.TestCase):
 		line = 'work history'
 		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRules.getLineType(line))
 		# 
-		line = 'xxx YYY zzZ:'
+		line = 'xxx YYY :'
 		self.assertEqual(Ref.LineType.SectionHeader.name, CvParseRules.getLineType(line))
 
 	def test_SectionBody(self):

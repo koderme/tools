@@ -81,7 +81,7 @@ class Ref:
 	# @return list containing lookup result.
 	#--------------------------------------------------
 	def lookupFromDict(line, searchDict, defaultWhenNotFound, findAll=False):
-		wordList = Utils.mysplit(line, True)
+		wordList = Utils.getWords(line)
 
 		lookupResultArr = []
 		for word in wordList:
@@ -145,6 +145,5 @@ class TestThisClass(unittest.TestCase):
 # Run unit tests
 #if __name__ == '__main__':
 #unittest.main()
-logging.basicConfig(level=logging.INFO)
 suite = unittest.TestLoader().loadTestsFromTestCase(TestThisClass)
 unittest.TextTestRunner(verbosity=2).run(suite)

@@ -3,7 +3,6 @@
 import os
 import unittest
 import sys
-sys.path.append('..')
 
 
 def add(a, b):

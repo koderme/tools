@@ -14,6 +14,8 @@ from model.CvContent import *
 from schema.CvSection import *
 from schema.CvSchemaBuilder import *
 
+logger = logging.getLogger('cvreader')
+
 #-------------------------------------------------------------
 # CvSchema holds the structure/metadata parsing content.
 # For parsing CV, one must first build content.
@@ -27,18 +29,17 @@ from schema.CvSchemaBuilder import *
 #
 # Metadata from CvSection is used to form below dictionaries:
 #
-# secTag_secName_dict 
-#    This dictionary stores <SecTag> Vs <SecName> for
-#    all the CvSection.
+# secList 
+#    List of section in the order of creation
 #
-# secName_cvSection_dict
+# secDict
 #    This dictionary stores <SecName> vs <CvSection> 
 #    for all the CvSection.
 #-------------------------------------------------------------
 class CvSchema:
 	def __init__(self):
-		self.secTag_secName_dict = {}
-		self.secName_cvSection_dict = {}
+		self.secList = []
+		self.secDict = {}
 		self.buildSchema()
 
 	#--------------------------------------------------------
@@ -47,16 +48,16 @@ class CvSchema:
 	#--------------------------------------------------------
 	def buildSchema(self):
 		for section in CvSchemaBuilder.buildSectionsForSchema():
-			self.updateDicts(section)
+			self.updateSchema(section)
 
 	#--------------------------------------------------------
 	# This is internal method
 	# It updates the dictionaries. 
 	# @param section CvSection that hold metadata.
 	#--------------------------------------------------------
-	def updateDicts(self, section):
-		self.secTag_secName_dict.update(section.getSecTagNameDict())
-		self.secName_cvSection_dict[section.getSecName()] = section
+	def updateSchema(self, section):
+		self.secList.append(section)
+		self.secDict[section.getSecName()] = section
 		
 
 	#--------------------------------------------------------
@@ -75,7 +76,6 @@ class CvSchema:
 		currCvSec = self.getDetaultCvSection()
 		for line in lineList:
 
-			newSectionFound = False
 
 			line = line.strip()
 			if (len(line) <= 1):
@@ -84,19 +84,21 @@ class CvSchema:
 			# Find matching CvSection	
 			foundCvSec = self.findCvSection(line)
 
-			if (foundCvSec != None):
-				newSectionFound = True
+			if (foundCvSec == None):
+				content.addLine(currCvSec.getSecName(), line)
+			# Found default
+			elif ( foundCvSec.getSecName() == Ref.Section.default.name ):
+				# Ignore intermediate default section
+				if (currCvSec.getSecName() == Ref.Section.default.name):
+					currCvSec = foundCvSec
+			else:
+				logger.debug('changing section to [' + foundCvSec.getSecName() + '] because of line :' + line)
 				currCvSec = foundCvSec
 
-			logging.debug("section [" + currCvSec.getSecName() + "] ====> [" + line + "]")
-			if (not newSectionFound):
-				# TODO make efficient
-				content.addLine(currCvSec.getSecName(), line)
-
+			logger.debug("section [" + currCvSec.getSecName() + "] ====> [" + line + "]")
 		return content
 
 	#--------------------------------------------------------
-	#
 	# Find matching section.
 	# Logic:
 	#    1. Is <line> a SectionHeader
@@ -107,43 +109,39 @@ class CvSchema:
 	#--------------------------------------------------------
 	def findCvSection(self, line):
 		lineType = CvParseRules.getLineType(line)
-		logging.debug("line [" + line + "] has line type" + lineType)
+		logger.debug("line [" + line + "] is a " + lineType)
 		if (lineType != Ref.LineType.SectionHeader.name):
-			logging.debug("line [" + line + "] is not SectionHeader")
 			return None
 
 		# Line is SectionHeader
 
 		# Proceed with secTag match
-		for secTag,secName in self.secTag_secName_dict.items():
-			if (line.find(secTag) != -1):
-				logging.debug('matching section found:' + secName)
-				return self.secName_cvSection_dict[secName]
+		for sec in self.secList:
+			if (Utils.search(sec.getSecTagRe(), line)):
+				logger.debug('matching section found:' + sec.getSecName())
+				return sec
 
-		logging.debug("line [" + line + "] doesn't map to any Section")
+		logger.debug("line [" + line + "] doesn't map to any Section")
 		return None
 
 	# Helper methods
 	def getDetaultCvSection(self):
-		return self.secName_cvSection_dict[Ref.Section.default.name]
+		return self.secDict[Ref.Section.default.name]
 
-	def get_secTag_secName_dict(self):
-		return self.secTag_secName_dict
-
-	def get_secName_cvSection_dict(self):
-		return self.secName_cvSection_dict
+	def getSecDict(self):
+		return self.secDict
 
 	def getParseFunc(self, secName):
-		section = self.secName_cvSection_dict.get(secName, None)
+		section = self.secDict.get(secName, None)
 		if (section == None):
-			logging.warn('section[' + secName + '] not found')
+			logger.warn('section[' + secName + '] not found')
 			return None
 
 		return section.getParseFunc()
 
 	def __str__(self):
 		retStr = ''
-		for secName, cvSec in self.secName_cvSection_dict.items():
+		for secName, cvSec in self.secDict.items():
 			retStr += str(cvSec) + '\n'
 
 		return retStr
@@ -159,8 +157,8 @@ class TestCvSchema(unittest.TestCase):
 		schema = CvSchema()
 
 		# verify dict size
-		self.assertNotEqual(0, len(schema.get_secTag_secName_dict()))
-		self.assertEqual(11, len(schema.get_secName_cvSection_dict()))
+		self.assertNotEqual(0, len(schema.getSecDict()))
+		self.assertEqual(10, len(schema.getSecDict()))
 
 	def test_findCvSection(self):
 
@@ -194,11 +192,12 @@ class TestCvSchema(unittest.TestCase):
 		schema = CvSchema()
 
 		cvSec = schema.findCvSection('XyZ Abc ')
-		self.assertEqual(None, cvSec)
+		defaultSec = CvSchemaBuilder.getDefaultSection()
+		self.assertNotEqual(None, cvSec)
+		self.assertEqual(defaultSec.getSecName(), cvSec.getSecName())
 
 # Run unit tests
 #if __name__ == '__main__':
 #unittest.main()
-logging.basicConfig(level=logging.INFO)
 suite = unittest.TestLoader().loadTestsFromTestCase(TestCvSchema)
 unittest.TextTestRunner(verbosity=2).run(suite)

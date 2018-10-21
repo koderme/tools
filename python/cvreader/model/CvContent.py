@@ -10,6 +10,7 @@ sys.path.append('../..')
 from common.Utils import *
 from model.ReferenceData import *
 
+logger = logging.getLogger('cvreader')
 
 #-------------------------------------------------------------
 # CvContent is a dictionary of
@@ -69,6 +70,5 @@ class TestCvContent(unittest.TestCase):
 # Run unit tests
 #if __name__ == '__main__':
 #unittest.main()
-logging.basicConfig(level=logging.INFO)
 suite = unittest.TestLoader().loadTestsFromTestCase(TestCvContent)
 unittest.TextTestRunner(verbosity=2).run(suite)

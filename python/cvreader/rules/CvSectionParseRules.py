@@ -11,6 +11,8 @@ from common.Utils import *
 from model.ReferenceData import *
 from rules.CvParseRules import *
 
+logger = logging.getLogger('cvreader')
+
 Attr =  Enum('', 'value emailid name phone')
 
 #-----------------------------------------------------
@@ -68,12 +70,12 @@ def parseEducation(sentenceList, prDict):
 		temp1 = re.sub('b\.\s*e\.*\s+', 'be ', line.lower())
 		temp2 = re.sub('b\.\s*tech\.*\s+', 'btech ', temp1)
 
-		logging.debug('massaged-line:' +temp2)
+		logger.debug('massaged-line:' +temp2)
 		eduList.extend(Ref.findEducation(temp2))
 
 	prDict[Attr.value.name] = Utils.removeDups(eduList)
 
-	logging.debug('prdict:' + str(prDict))
+	logger.debug('prdict:' + str(prDict))
 
 #-----------------------------------------------------
 # It parses the lines in specified CvSection
@@ -126,7 +128,7 @@ def parsePersonal(sentenceList, prDict):
 	for line in sentenceList:
 
 		currLocList = Ref.findLocation(line)
-		logging.debug('location:' + str(currLocList))
+		logger.debug('location:' + str(currLocList))
 	
 		locationList.extend(currLocList)
 	
@@ -247,6 +249,5 @@ class TestCvSectionParseRules(unittest.TestCase):
 # Run unit tests
 #if __name__ == '__main__':
 #unittest.main()
-logging.basicConfig(level=logging.INFO)
 suite = unittest.TestLoader().loadTestsFromTestCase(TestCvSectionParseRules)
 unittest.TextTestRunner(verbosity=2).run(suite)
