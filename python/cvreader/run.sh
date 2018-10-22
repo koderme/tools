@@ -16,6 +16,7 @@ run_test()
 case $1 in
 	run)
 		set -x
+		rm *.log
 		./CvMain.py --action=parse 1> test.log 2>&1
 		;;
 

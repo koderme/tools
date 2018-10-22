@@ -74,6 +74,7 @@ class CvSchema:
 		content = CvContent()
 
 		currCvSec = self.getDetaultCvSectionSchema()
+		newSectionFound = False
 		for line in lineList:
 
 			line = line.strip()
@@ -84,15 +85,19 @@ class CvSchema:
 			foundCvSec = self.findCvSectionSchema(line)
 
 			if (foundCvSec == None):
-				content.addLine(currCvSec.getSecName(), line)
+				content.addLine(currCvSec.getSecName(), line, newSectionFound)
+				newSectionFound = False
 			# Found default
 			elif ( foundCvSec.getSecName() == Ref.Section.default.name ):
 				# Ignore intermediate default section
 				if (currCvSec.getSecName() == Ref.Section.default.name):
 					currCvSec = foundCvSec
+					newSectionFound = True
+				
 			else:
 				logger.debug('changing section to [' + foundCvSec.getSecName() + '] because of line :' + line)
 				currCvSec = foundCvSec
+				newSectionFound = True
 
 			logger.debug("section [" + currCvSec.getSecName() + "] ====> [" + line + "]")
 		return content
@@ -192,8 +197,7 @@ class TestCvSchema(unittest.TestCase):
 
 		cvSec = schema.findCvSectionSchema('XyZ Abc ')
 		defaultSec = CvSchemaBuilder.getDefaultSection()
-		self.assertNotEqual(None, cvSec)
-		self.assertEqual(defaultSec.getSecName(), cvSec.getSecName())
+		self.assertEqual(None, cvSec)
 
 # Run unit tests
 #if __name__ == '__main__':

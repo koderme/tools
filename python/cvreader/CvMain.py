@@ -45,7 +45,7 @@ def	doAction(cmdArgs):
 def doParse(cmdArgs):
 	logger.info('action:' + cmdArgs.action)
 
-	parser = CvParseImpl('temp/test.developer.txt')
+	parser = CvParseImpl('temp/developer.txt')
 	prResult = parser.parse()
 	logger.info('parse-result:' + str(prResult))
 	

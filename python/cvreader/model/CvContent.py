@@ -21,20 +21,15 @@ class CvContent:
 		self.secContentList = []
 		self.curSecContent = None
 
-	def addLine(self, secName, line):
+	def addLine(self, secName, line, startNewSection=False):
 
 		if ((self.curSecContent == None) or
+			(startNewSection) or 
 			(self.curSecContent.getSecName() != secName)):
 			self.curSecContent = CvSectionContent(secName)
 			self.secContentList.append(self.curSecContent)
 
 		self.curSecContent.addLine(line)
-
-	def getSecContent(self, secName):
-		for secContent in self.secContentList:
-			if secContent.getSecName() == secName:
-				return secContent
-		return None
 
 	def getSecContentList(self):
 		return self.secContentList
@@ -52,7 +47,7 @@ class CvContent:
 #---------------------------------------------------------------
 class TestThisClass(unittest.TestCase):
 
-	def test_get_sentence(self):
+	def test_get_addLine(self):
 
 		obj = CvContent()
 
@@ -63,9 +58,22 @@ class TestThisClass(unittest.TestCase):
 		obj.addLine(Ref.Section.skill.name, 'unix ml')
 
 		self.assertEqual(2, obj.size())
-		self.assertEqual(Ref.Section.personal.name, obj.getSecContent(Ref.Section.personal.name).getSecName())
-		self.assertEqual(Ref.Section.skill.name, obj.getSecContent(Ref.Section.skill.name).getSecName())
 
+	def test_get_addLine_newsection(self):
+
+		obj = CvContent()
+
+		obj.addLine(Ref.Section.personal.name, 'email: test@gmail.com')
+		obj.addLine(Ref.Section.personal.name, 'name: John White')
+
+		startNewSection = True	
+		obj.addLine(Ref.Section.skill.name, 'java cpp python', startNewSection)
+		obj.addLine(Ref.Section.skill.name, 'unix ml')
+
+		obj.addLine(Ref.Section.skill.name, 'bigdata kafka', startNewSection)
+		obj.addLine(Ref.Section.skill.name, 'spark')
+
+		self.assertEqual(3, obj.size())
 
 # Run unit tests
 #if __name__ == '__main__':

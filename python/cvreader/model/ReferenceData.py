@@ -17,7 +17,7 @@ class Ref:
 			'experience', 'summary', 'skill', 'work',
 			'career', 'history', 'assignment', 'scholastic',
 			'education', 'qualification', 'cerfitication', 'certified',
-			'project', 'objective', 'address', 'residence',
+			'project', 'objective', 'address', 'residence', 'skills'
 		]
 
 	LineType =  Enum('', 'SectionHeader SectionBody Others')

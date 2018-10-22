@@ -29,18 +29,16 @@ class CvSectionContent:
 		return self.lineList	
 
 	def __str__(self):
-		retStr = ''
+		retStr = '\n---------------' + self.secName + '---------------'
 		for line in self.lineList:
-			retStr += '\n---------------' + self.secName + '---------------'
-			for line in self.lineList:
-				retStr += '\n' + line
+			retStr += '\n' + line
 		return retStr
 #---------------------------------------------------------------
 # Unit tests
 #---------------------------------------------------------------
 class TestThisClass(unittest.TestCase):
 
-	def test_get_sentence(self):
+	def test_get_addline(self):
 
 		obj = CvSectionContent('sec1')
 
