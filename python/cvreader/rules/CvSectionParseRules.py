@@ -157,16 +157,29 @@ def parseSummary(lineList, prDict):
 def parseProject(lineList, prDict):
 
 	techStack = []
+	currHeader = 'others'
+	currValue = ''
 	for line in lineList:
-		result = re.search(r'(environment|tech)')
-		if (result):
-			wordList = Utils.getWords(line)
-			techStack.extend(wordList)
-		
-		# Break when empty line is found
-		TODO
+		wordList = Utils.getWords(line)
+		# Skip empty lines
+		if (len(wordList) == 0):
+			continue
+	
+		if (wordList[0] in Ref.PossibleProjectHeader):
 
-	prDict['TBD'] = experience
+			prDict[currHeader] = currValue
+			currHeader = wordList[0]
+			currValue = ''
+			
+			# header followed by value on next
+			if (len(wordList) == 1):
+				continue
+			else:
+				currValue = ' '.join(wordList[1:])
+		else:
+			currValue += line + '\n'
+	
+	prDict[currHeader] = currValue
 
 #------------------------------------------
 # Unit test
@@ -255,7 +268,6 @@ class TestCvSectionParseRules(unittest.TestCase):
 		prDict = {}
 		parseEducation(lines, prDict)
 		self.assertEqual(1, len(prDict))
-		self.assertEqual(1, len(prDict))
 		self.assertEqual(True , 'be' in prDict[Attr.value.name])
 
 		lines = []
@@ -265,7 +277,6 @@ class TestCvSectionParseRules(unittest.TestCase):
 		prDict = {}
 		parseEducation(lines, prDict)
 		self.assertEqual(1, len(prDict))
-		self.assertEqual(1, len(prDict))
 		self.assertEqual(True , 'btech' in prDict[Attr.value.name])
 
 		lines = []
@@ -274,7 +285,6 @@ class TestCvSectionParseRules(unittest.TestCase):
 		lines.append('SSC from abc college mumbai...')
 		prDict = {}
 		parseEducation(lines, prDict)
-		self.assertEqual(1, len(prDict))
 		self.assertEqual(1, len(prDict))
 		self.assertEqual(True , 'bachelor' in prDict[Attr.value.name])
 		self.assertEqual(True , 'art' in prDict[Attr.value.name])
@@ -286,14 +296,12 @@ class TestCvSectionParseRules(unittest.TestCase):
 		prDict = {}
 		parseSummary(lines, prDict)
 		self.assertEqual(1, len(prDict))
-		self.assertEqual(1, len(prDict))
 		self.assertEqual(0.34, prDict['experience'])
 
 		lines = []
 		lines.append('i have  11years of experience in')
 		prDict = {}
 		parseSummary(lines, prDict)
-		self.assertEqual(1, len(prDict))
 		self.assertEqual(1, len(prDict))
 		self.assertEqual(11, prDict['experience'])
 
@@ -302,8 +310,21 @@ class TestCvSectionParseRules(unittest.TestCase):
 		prDict = {}
 		parseSummary(lines, prDict)
 		self.assertEqual(1, len(prDict))
-		self.assertEqual(1, len(prDict))
 		self.assertEqual(12.55, prDict['experience'])
+
+	def test_parseProject(self):
+		lines = []
+		lines.append('  |project   |enterprise reservations rich|')
+		lines.append('|client      |allinclusiveoutlet.com           |')
+		lines.append('|duration    |sep-17 to till date.  |')
+		lines.append('|team size   |5                   |')
+		lines.append('|environment |software |tools&technologies:java, servlets, jsp,     |')
+		lines.append('|            |   |html, java script,   |')
+
+		prDict = {}
+		parseProject(lines, prDict)
+		self.assertEqual(6, len(prDict))
+		self.assertEqual('enterprise reservations rich', prDict['project'])
 
 # Run unit tests
 #if __name__ == '__main__':

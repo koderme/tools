@@ -20,6 +20,17 @@ class Ref:
 			'project', 'objective', 'address', 'residence', 'skills'
 		]
 
+	PossibleProjectHeader = [
+		'project', 'title', 'description',
+		'client','organization',
+		'duration',
+		'role', 'responsibilities', 'position',
+		'contribution', 'deliverables',
+		'team size','team',
+		'environment',
+		'techology', 'technologies', 'techstack', 'tech', 'platform','tools',
+		]
+
 	LineType =  Enum('', 'SectionHeader SectionBody Others')
 	DefaultLocation =  'location-not-found'
 	LocationDict = {
