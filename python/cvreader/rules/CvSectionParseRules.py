@@ -159,6 +159,8 @@ def parseProject(lineList, prDict):
 	techStack = []
 	currHeader = 'others'
 	currValue = ''
+	index = len(prDict)
+	prDict[index] = {}
 	for line in lineList:
 		wordList = Utils.getWords(line)
 		# Skip empty lines
@@ -167,7 +169,7 @@ def parseProject(lineList, prDict):
 	
 		if (wordList[0] in Ref.PossibleProjectHeader):
 
-			prDict[currHeader] = currValue
+			prDict[index][currHeader] = currValue
 			currHeader = wordList[0]
 			currValue = ''
 			
@@ -179,7 +181,7 @@ def parseProject(lineList, prDict):
 		else:
 			currValue += line + '\n'
 	
-	prDict[currHeader] = currValue
+	prDict[index][currHeader] = currValue
 
 #------------------------------------------
 # Unit test
@@ -313,6 +315,8 @@ class TestCvSectionParseRules(unittest.TestCase):
 		self.assertEqual(12.55, prDict['experience'])
 
 	def test_parseProject(self):
+
+		# Single project
 		lines = []
 		lines.append('  |project   |enterprise reservations rich|')
 		lines.append('|client      |allinclusiveoutlet.com           |')
@@ -323,8 +327,29 @@ class TestCvSectionParseRules(unittest.TestCase):
 
 		prDict = {}
 		parseProject(lines, prDict)
-		self.assertEqual(6, len(prDict))
-		self.assertEqual('enterprise reservations rich', prDict['project'])
+		self.assertEqual(6, len(prDict[0]))
+		self.assertEqual('enterprise reservations rich', prDict[0]['project'])
+
+
+		# Multi project
+		prDict = {}
+
+		lines = []
+		lines.append('  |project   |enterprise proj1 rich|')
+		lines.append('|client      |ibm|')
+		lines.append('|duration    |sep-17 to till date.  |')
+
+		parseProject(lines, prDict)
+		self.assertEqual(4, len(prDict[0]))
+		self.assertEqual('ibm', prDict[0]['client'])
+
+		lines = []
+		lines.append('  |project   |enterprise proj2 rich|')
+		lines.append('|client      |apple|')
+		lines.append('|duration    |sep-18 to till date.  |')
+		parseProject(lines, prDict)
+		self.assertEqual(4, len(prDict[1]))
+		self.assertEqual('apple', prDict[1]['client'])
 
 # Run unit tests
 #if __name__ == '__main__':

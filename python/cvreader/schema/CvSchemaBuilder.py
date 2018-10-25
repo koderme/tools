@@ -46,7 +46,8 @@ class CvSchemaBuilder:
 		sections.append(sec)
 
 		sec = CvSectionSchema(Ref.Section.project.name,
-					'(project\s+summary|assignment\s+history|project)')
+					'(project\s+summary|assignment\s+history|project)',
+					parseProject)
 		sections.append(sec)
 
 		sec = CvSectionSchema(Ref.Section.education.name,
