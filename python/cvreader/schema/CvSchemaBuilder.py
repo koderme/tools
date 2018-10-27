@@ -42,7 +42,8 @@ class CvSchemaBuilder:
 		sections.append(sec)
 
 		sec = CvSectionSchema(Ref.Section.workhistory.name,
-					'((work|career)\s+history|experience)')
+					'((work|career)\s+history|experience)',
+					parseWorkHistory)
 		sections.append(sec)
 
 		sec = CvSectionSchema(Ref.Section.project.name,

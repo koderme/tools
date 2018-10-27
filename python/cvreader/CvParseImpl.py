@@ -54,6 +54,7 @@ class CvParseImpl(CvParse):
 
 			parseFunc(secContent.getLineList(), attrDict)
 
+		logger.debug(parseResult.getJson())
 		return parseResult
 
 #---------------------------------------------------------------

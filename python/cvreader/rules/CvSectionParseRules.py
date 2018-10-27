@@ -57,10 +57,7 @@ def parseSkill(lineList, prDict):
 
 #-----------------------------------------------------
 # It parses the lines in specified CvSection
-# The lines being parsed are expected in below format:
-# e.g.: operating systems     :    windows  and unix
-# e.g.: core  java, servlets, jsp, jdbc
-#
+# Extracts the education details.
 # @param lineList list of sentences to be parsed.
 # @param prDict where results will be stored.
 #-----------------------------------------------------
@@ -116,7 +113,7 @@ def parseDefault(lineList, prDict):
 # It parses the lines in specified CvSection
 # Logic:
 #   1. It extracts location
-#   2. It extracts DOB
+#   2. TBD
 #
 # @param lineList list of sentences to be parsed.
 # @param prDict where results will be stored.
@@ -136,6 +133,9 @@ def parsePersonal(lineList, prDict):
 
 #-----------------------------------------------------
 # Parses the summary section
+#
+# @param lineList list of sentences to be parsed.
+# @param prDict where results will be stored.
 #-----------------------------------------------------
 def parseSummary(lineList, prDict):
 
@@ -152,11 +152,19 @@ def parseSummary(lineList, prDict):
 	prDict['experience'] = experience
 
 #-----------------------------------------------------
-# Parses the summary section
+# Parses the speficied lineList
+# It assumes the format to be 
+#    token1 : value....
+#    token2 : value....
+#    token3 : value....
+#
+# @param lineList list of sentences to be parsed.
+# @param tokenList conatins token to be matched.
+# @param prDict where results will be stored.
+# 
 #-----------------------------------------------------
-def parseProject(lineList, prDict):
+def parseTokenValue(lineList, tokenList, prDict):
 
-	techStack = []
 	currHeader = 'others'
 	currValue = ''
 	index = len(prDict)
@@ -167,7 +175,7 @@ def parseProject(lineList, prDict):
 		if (len(wordList) == 0):
 			continue
 	
-		if (wordList[0] in Ref.PossibleProjectHeader):
+		if (wordList[0] in tokenList):
 
 			prDict[index][currHeader] = currValue
 			currHeader = wordList[0]
@@ -182,6 +190,52 @@ def parseProject(lineList, prDict):
 			currValue += line + '\n'
 	
 	prDict[index][currHeader] = currValue
+
+
+#-----------------------------------------------------
+# Parses the Project sections
+#
+# @param lineList list of sentences to be parsed.
+# @param prDict where results will be stored.
+#-----------------------------------------------------
+def parseProject(lineList, prDict):
+
+	parseTokenValue(lineList, Ref.PossibleProjectHeader, prDict)
+
+#-----------------------------------------------------
+# Parses the Project sections
+#
+# @param lineList list of sentences to be parsed.
+# @param prDict where results will be stored.
+#-----------------------------------------------------
+def parseWorkHistory(lineList, prDict):
+
+	# ParseOne -- check if it tvFormat?
+	# If it has alteast 3 T:V lines, then it said to be tvFormat
+	#     e.g.
+	#       employer: ibm, pune
+	#       role: developer
+	#       duration: jan2017 -- till date
+	# else
+	#   it is not in tvFormat
+	#    e.g.
+	#       developer at ibm, pune    jan 2017 -- till date
+
+	tempDict = {}
+	parseTokenValue(lineList, Ref.PossibleWorkHistoryHeader, tempDict)
+
+
+	if (len(tempDict[0]) > 2):
+		# TODO possible optimization ...can above result be used?
+		parseTokenValue(lineList, Ref.PossibleWorkHistoryHeader, prDict)
+	else:
+		index = len(prDict)
+		prDict[index] = {}
+		for line in lineList:
+			prDict[index]['employment'] = line
+			index = index + 1
+			prDict[index] = {}
+		
 
 #------------------------------------------
 # Unit test
@@ -330,7 +384,6 @@ class TestCvSectionParseRules(unittest.TestCase):
 		self.assertEqual(6, len(prDict[0]))
 		self.assertEqual('enterprise reservations rich', prDict[0]['project'])
 
-
 		# Multi project
 		prDict = {}
 
@@ -350,6 +403,57 @@ class TestCvSectionParseRules(unittest.TestCase):
 		parseProject(lines, prDict)
 		self.assertEqual(4, len(prDict[1]))
 		self.assertEqual('apple', prDict[1]['client'])
+
+	def test_parseWorkHistory(self):
+
+		# Single tvFormat
+		prDict = {}
+		lines = []
+		lines.append('|employer |ibm|')
+		lines.append('|role |developer|')
+		lines.append('|duration |jun2017 -- till date|')
+
+		parseWorkHistory(lines, prDict)
+		self.assertEqual(4, len(prDict[0]))
+		self.assertEqual('ibm', prDict[0]['employer'])
+
+		# Multi tvFormat
+		prDict = {}
+		lines = []
+		lines.append('|employer |ibm|')
+		lines.append('|role |developer|')
+		lines.append('|duration |jun2017 -- till date|')
+		parseWorkHistory(lines, prDict)
+
+		lines = []
+		lines.append('|employer |fiserv|')
+		lines.append('|role |developer|')
+		lines.append('|duration |jun2015 -- jun2017|')
+		parseWorkHistory(lines, prDict)
+
+		self.assertEqual(4, len(prDict[1]))
+		self.assertEqual('fiserv', prDict[1]['employer'])
+
+		# Single non-tvFormat
+		prDict = {}
+		lines = []
+		lines.append('ibm  developer jun2017 -- till date')
+		lines.append('fiserv  developer jun2015 -- jun2017')
+
+		parseWorkHistory(lines, prDict)
+
+		self.assertEqual(1, len(prDict[0]))
+		self.assertEqual(1, len(prDict[1]))
+		self.assertEqual('ibm  developer jun2017 -- till date', prDict[0]['employment'])
+		self.assertEqual('fiserv  developer jun2015 -- jun2017', prDict[1]['employment'])
+
+
+# Run unit tests
+#if __name__ == '__main__':
+#unittest.main()
+suite = unittest.TestLoader().loadTestsFromTestCase(TestCvSectionParseRules)
+unittest.TextTestRunner(verbosity=2).run(suite)
+
 
 # Run unit tests
 #if __name__ == '__main__':

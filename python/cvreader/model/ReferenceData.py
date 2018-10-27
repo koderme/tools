@@ -31,6 +31,13 @@ class Ref:
 		'techology', 'technologies', 'techstack', 'tech', 'platform','tools',
 		]
 
+	PossibleWorkHistoryHeader = [
+		'designation', 'role',
+		'organization', 'employer',
+		'duration', 'period',
+		'location', 'place',
+		]
+
 	LineType =  Enum('', 'SectionHeader SectionBody Others')
 	DefaultLocation =  'location-not-found'
 	LocationDict = {

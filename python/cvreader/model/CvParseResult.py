@@ -2,7 +2,9 @@
 
 import os
 import unittest
+import json
 import sys
+
 sys.path.append('.')
 sys.path.append('..')
 sys.path.append('../..')
@@ -20,33 +22,39 @@ logger = logging.getLogger('cvreader')
 #-------------------------------------------------------------
 class CvParseResult:
 	def __init__(self):
-		self.contentDict = {}
+		self.secDict = {}
 
 	def add(self, sectionName, attrKey, attrValue):
-		attrDict = self.contentDict.get(sectionName)
-		if (attrDict == None):
-			attrDict = {}
-			self.contentDict[sectionName] = attrDict
-		attrDict[attrKey] = attrValue
+		secAttrDict = self.secDict.get(sectionName)
+		if (secAttrDict == None):
+			secAttrDict = {}
+			self.secDict[sectionName] = secAttrDict
+		secAttrDict[attrKey] = attrValue
 
 	def getAttrValue(self, sectionName, attrKey):
-		attrDict = self.contentDict.get(sectionName)
-		if (attrDict == None):
+		secAttrDict = self.secDict.get(sectionName)
+		if (secAttrDict == None):
 			return None
 
-		return attrDict.get(attrKey, None)
+		return secAttrDict.get(attrKey, None)
 
 	def getSectionDict(self, sectionName):
-		attrDict = self.contentDict.get(sectionName)
-		if (attrDict == None):
-			attrDict = {}
-			self.contentDict[sectionName] = attrDict
-		return attrDict
+		secAttrDict = self.secDict.get(sectionName)
+		if (secAttrDict == None):
+			secAttrDict = {}
+			self.secDict[sectionName] = secAttrDict
+		return secAttrDict
+
+	def getSecDict(self):
+		return self.secDict
+
+	def getJson(self):
+		return json.dumps(self.secDict, indent=2)
 
 	def __str__(self):
 		retStr = ''
-		for secName, attrDict in self.contentDict.items():
-			retStr += '\n[' + secName + '] ==> '  + str(attrDict)
+		for secName, secAttrDict in self.secDict.items():
+			retStr += '\n[' + secName + '] ==> '  + str(secAttrDict)
 
 		return retStr
 
