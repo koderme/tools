@@ -2,6 +2,11 @@
 sudo apt install python-pip  # Install pip for python
 sudo apt install python3-pip # Install pip for python3
 
+# Install poppler
+sudo apt-get install -y poppler-utils
+sudo apt-get install tesseract-ocr
+
+
 pip install PACKAGE_NAME    # Install python package
 pip uninstall PACKAGE_NAME  # uninstall
 pip search KEYWORD          # Search
@@ -27,10 +32,13 @@ sudo pip3 install python-docx
 
 # Install image to text 
 sudo pip3 install pytesseract
+sudo pip3 install tesseract
+
 
 # Install imaging lib
 sudo pip3 install Pillow
 
 # Install pdf2image
 sudo pip3 install pdf2image
+
 
