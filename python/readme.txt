@@ -1,6 +1,7 @@
 
 sudo apt install python-pip  # Install pip for python
 sudo apt install python3-pip # Install pip for python3
+sudo apt-get install python-dev libxml2-dev libxslt1-dev antiword unrtf poppler-utils pstotext tesseract-ocr flac ffmpeg lame libmad0 libsox-fmt-mp3 sox libjpeg-dev swig libpulse-dev
 
 # Install poppler
 sudo apt-get install -y poppler-utils
@@ -33,6 +34,7 @@ sudo pip3 install python-docx
 # Install image to text 
 sudo pip3 install pytesseract
 sudo pip3 install tesseract
+sudo pip3 install textract
 
 
 # Install imaging lib
@@ -42,3 +44,6 @@ sudo pip3 install Pillow
 sudo pip3 install pdf2image
 
 
+sudo pip3 install python-interface
+sudo pip3 install tqdm
+sudo pip3 install opencv-python

@@ -1,4 +1,4 @@
-#!/usr/bin/python3.5
+#!/usr/bin/python3.6
 
 
 #
@@ -23,7 +23,7 @@ from DocConverter import *
 #----------------------------------------
 def parseArgs(progArgs):
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-a','--action', help='download|extract', required=True)
+	parser.add_argument('-a','--action', help='download|converttotext', required=True)
 	parser.add_argument('-d','--dir', help='dir', required=True)
 	parser.add_argument('-s','--skills', help='skills', required=False)
 
@@ -37,8 +37,8 @@ def	doAction(cmdArgs):
 	if (cmdArgs.action == 'download'):
 		doDownload(cmdArgs)
 
-	if (cmdArgs.action == 'parse'):
-		doParse(cmdArgs)
+	if (cmdArgs.action == 'converttotext'):
+		doConvertToText(cmdArgs)
 
 #----------------------------------------
 # Specific action
@@ -57,7 +57,7 @@ def doDownload(cmdArgs):
 #----------------------------------------
 # Specific action
 #----------------------------------------
-def doParse(cmdArgs):
+def doConvertToText(cmdArgs):
 	logging.info('action:' +cmdArgs.action)
 	DocConverter.convertToText(cmdArgs.dir)
 	

@@ -1,4 +1,4 @@
-#!/usr/bin/python3.5
+#!/usr/bin/python3.6
 
 import os
 from nltk.tokenize import sent_tokenize, word_tokenize
