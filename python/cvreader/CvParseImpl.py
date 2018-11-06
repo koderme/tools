@@ -39,6 +39,7 @@ class CvParseImpl(CvParse):
 		content = CvParseImpl.schema.buildContent(lineList)
 
 		logger.info('--------content------------')
+		logger.info('file:'  + self.inFilepath)
 		logger.info(str(content))
 
 		# Parse the content

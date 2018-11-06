@@ -31,6 +31,12 @@ class CvParseRules:
 				return True
 		return False
 
+	def hasVerb(wordList):
+		for word in wordList:
+			if word in Ref.Verbs:
+				return True
+		return False
+
 	# Identify line
 	def getLineType(line):
 		wordList = Utils.getWords(line)
@@ -39,10 +45,17 @@ class CvParseRules:
 		logger.debug('line=[' + line + '] wordList=[' + str(wordList) + ']')
 		if (wLen == 0):
 			retType = Ref.LineType.Others.name
-		elif ((wLen >= 1) and
-				(wLen <= 2) and
+		elif ((wLen == 1) and
 				CvParseRules.isMatchingKnownHeader(wordList)):
 			retType = Ref.LineType.SectionHeader.name
+		elif (wLen <= 2):
+				# Ignore if it contains verbs
+				if (CvParseRules.hasVerb(wordList)):
+					retType = Ref.LineType.SectionBody.name
+				elif (CvParseRules.isMatchingKnownHeader(wordList)):
+					retType = Ref.LineType.SectionHeader.name
+				else:
+					retType = Ref.LineType.SectionBody.name
 		else:
 			retType = Ref.LineType.SectionBody.name
 

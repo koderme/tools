@@ -38,6 +38,10 @@ class Ref:
 		'location', 'place',
 		]
 
+	Verbs = [
+		'used',
+		]
+
 	LineType =  Enum('', 'SectionHeader SectionBody Others')
 	DefaultLocation =  'location-not-found'
 	LocationDict = {

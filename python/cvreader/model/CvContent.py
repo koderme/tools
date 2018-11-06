@@ -23,6 +23,10 @@ class CvContent:
 
 	def addLine(self, secName, line, startNewSection=False):
 
+		# Its a new section when:
+		#  [1] Current section is None
+		#  [2] startNewSection is True
+		#  [3] specified secName is different that curr secName
 		if ((self.curSecContent == None) or
 			(startNewSection) or 
 			(self.curSecContent.getSecName() != secName)):

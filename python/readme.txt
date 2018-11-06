@@ -47,3 +47,9 @@ sudo pip3 install pdf2image
 sudo pip3 install python-interface
 sudo pip3 install tqdm
 sudo pip3 install opencv-python
+
+
+# Mongodb
+
+sudo pip3 install pymongo
+

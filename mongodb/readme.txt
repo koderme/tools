@@ -44,5 +44,37 @@ mongo -u "root" -p --authenticationDatabase "admin"
 use admin
 db.changeUserPassword("root", "root123")
 
+#--------------------------------------------------
+# Create user
+#--------------------------------------------------
+ db.createUser( { user: "vishal", pwd: "vishal", roles: [ "readWrite" ] })
+ db.createUser( { user: "john", pwd: "john", roles: [ { role: "readWrite", db: "ecomm" } ] })
+ db.createUser( { user: "tom", pwd: "tom", roles: [ "userAdminAnyDatabase" ] })
+
+ db.dropUser("vishal")
+
+#--------------------------------------------------
+# collection (table)
+#--------------------------------------------------
+db.createCollection("emp")           ### create collection
+db.dept.insert({"deptno" : "100"})   ### coll is created automatically row is inserted
+
+show collections   ### display all collections
+
+db.emp.drop()      ### drop collection
 
 
+
+#--------------------------------------------------
+# documnet (row)
+#--------------------------------------------------
+db.emp.insert({
+   name: 'John White', 
+   empno: '100',
+   colors: ['red', 'orange', 'blue'],
+   salary: 10000
+})
+
+
+db.emp.find()           ### show all documents
+db.emp.find().pretty()  ### show all documents formatted

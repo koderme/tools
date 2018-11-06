@@ -5,8 +5,8 @@ case $1 in
 		./Main.py --action=download --dir=downloads
 		;;
 
-	parse)
-		./Main.py --action=parse --dir=downloads
+	converttotext)
+		./Main.py --action=converttotext --dir=sample_cv
 		;;
 
 	*)

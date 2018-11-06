@@ -45,7 +45,7 @@ def	doAction(cmdArgs):
 def doParse(cmdArgs):
 	logger.info('action:' + cmdArgs.action)
 
-	parser = CvParseImpl('temp/developer.txt')
+	parser = CvParseImpl('../mail-reader/processed/cv5.txt')
 	prResult = parser.parse()
 	logger.info('parse-result:' + str(prResult))
 	
