@@ -37,9 +37,20 @@ sudo ufw allow 27017
 
 
 #--------------------------------------------------
-# Change password
+# Login
 #--------------------------------------------------
 mongo -u "root" -p --authenticationDatabase "admin"
+mongo -u "vishal" -p --authenticationDatabase "ecomm"
+
+use admin
+db.changeUserPassword("root", "root123")
+
+#--------------------------------------------------
+# Create user
+#--------------------------------------------------
+ db.createUser( { user: "vishal", pwd: "vishal", roles: [ "readWrite" ] })
+ db.createUser( { user: "john", pwd: "john", roles: [ { role: "readWrite", db: "ecomm" } ] })
+ db.createUser( { user: "tom", pwd: "tom", roles: [ "userAdminAnyDatabase" ] })
 
 use admin
 db.changeUserPassword("root", "root123")
