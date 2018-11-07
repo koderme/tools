@@ -8,6 +8,7 @@ sys.path.append('..')
 sys.path.append('../..')
 
 from common.Utils import *
+from common.MongoDb import *
 from CvParseImpl import *
 from model.CvParseResult import *
 
@@ -24,7 +25,7 @@ from model.CvParseResult import *
 #----------------------------------------
 def parseArgs(progArgs):
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-a','--action', help='parse', required=True)
+	parser.add_argument('-a','--action', help='parse|parsepersist', required=True)
 	#parser.add_argument('-s','--skills', help='skills', required=False)
 	#parser.add_argument('-d','--dir', help='dir', required=True)
 
@@ -35,29 +36,56 @@ def parseArgs(progArgs):
 #----------------------------------------
 def	doAction(cmdArgs):
 
-	logger.info('cmdArgs:' + str(cmdArgs))
-	if (cmdArgs.action == 'parse'):
-		doParse(cmdArgs)
+	try:
+		logger.info('cmdArgs:' + str(cmdArgs))
+		if (cmdArgs.action == 'parse'):
+			doParse(cmdArgs)
+
+		if (cmdArgs.action == 'parsepersist'):
+			doParsePersist(cmdArgs)
+	except Exception as e:	
+		logger.exception(e)
+
 
 #----------------------------------------
 # Specific action
 #----------------------------------------
 def doParse(cmdArgs):
-	logger.info('action:' + cmdArgs.action)
-
+	prResult = None
 	parser = CvParseImpl('../mail-reader/processed/cv5.txt')
 	prResult = parser.parse()
-	logger.info('parse-result:' + str(prResult))
-	
+	logger.info('--------------------------------')
+	logger.info('parse-result:' + str(prResult.getSecDict()))
+	logger.info('--------------------------------')
+	logger.info('parse-result-json:' + str(prResult.getSecDictAsJson()))
+	return prResult
+
+#----------------------------------------
+# Specific action
+#----------------------------------------
+def doParsePersist(cmdArgs):
+	connString = 'mongodb://localhost:27017/'
+	mdb = MongoDb(connString, "vishal", "vishal", "resim")
+	mdb.authenticate()
+
+	pr = doParse(cmdArgs)
+
+	mdb.insertOne("resim", "cv", pr.getSecDict())
 
 #----------------------------------------
 # Main
 #----------------------------------------
+fh1 = logging.StreamHandler()
+fh1.setLevel(logging.INFO)
+
+fh2 = logging.FileHandler('./debug.log')
+fh2.setLevel(logging.DEBUG)
+
 logger = logging.getLogger('cvreader')
-logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler('./debug.log')
-fh.setLevel(logging.DEBUG)
-logger.addHandler(fh)
+logger.addHandler(fh1)
+logger.addHandler(fh2)
+
+
 
 cmdArgs = parseArgs(sys.argv);
 

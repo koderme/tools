@@ -25,14 +25,28 @@ logger.addHandler(ch)
 newLine = "\n"
 collName = "emp1"
 dbName = "ecomm"
+authMech = 'SCRAM-SHA-256'
+authMech = 'SCRAM-SHA-1'  ### This works
 
 class MongoDb:
-	def __init__(self, connString, loginId, password):
+	def __init__(self, connString, loginId, password, authSource):
 		self.connString = connString
 		self.loginId = loginId
 		self.password = password
+		self.authSource = authSource
 
 	def authenticate(self):
+
+		dbClient = MongoClient(self.connString,
+			username=self.loginId,
+			password=self.password,
+			authSource=self.authSource,
+			authMechanism=authMech)
+
+		self.dbClient = dbClient
+		logger.debug("authenticate:" + str(dbClient))
+
+	def authenticate2(self):
 		authMech = 'SCRAM-SHA-256'
 		authMech = 'SCRAM-SHA-1'  ### This works
 
@@ -99,7 +113,7 @@ class MongoDb:
 class TestMyClass(unittest.TestCase):
 
 	connString = 'mongodb://localhost:27017/'
-	mdb = MongoDb(connString, "vishal", "vishal")
+	mdb = MongoDb(connString, "vishal", "vishal", "ecomm")
 
 	def show(result):
 		for doc in result:
@@ -121,6 +135,7 @@ class TestMyClass(unittest.TestCase):
 
 	def test_find(self):
 		empno = Utils.currentTimestamp()
+		self.mdb.deleteAll(dbName, collName)
 
 		# Insert
 		doc = { "empno": empno }
@@ -132,6 +147,7 @@ class TestMyClass(unittest.TestCase):
 		self.assertEqual(empno, result[0]['empno'])
 
 	def test_deleteOne(self):
+		self.mdb.deleteAll(dbName, collName)
 		empno = Utils.currentTimestamp()
 
 		# Insert
@@ -183,6 +199,14 @@ class TestMyClass(unittest.TestCase):
 		result = self.mdb.find_allDocs_selectedFields(dbName, collName, selectFieldDict)
 		self.assertEqual(4, result.count())
 
+	def test_insert_rec(self):
+
+		self.mdb.deleteAll(dbName, collName)
+		for x in range(1000):
+			self.insert_10_11_12()
+
+		result = self.mdb.find_allDocs_allFields(dbName, collName)
+		self.assertEqual(4000, result.count())
 
 # Run unit tests
 #if __name__ == '__main__':

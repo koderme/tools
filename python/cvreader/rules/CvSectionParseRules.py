@@ -14,6 +14,7 @@ from rules.CvParseRules import *
 logger = logging.getLogger('cvreader')
 
 Attr =  Enum('', 'value emailid name phone')
+Prefix = 'Index-'
 
 #-----------------------------------------------------
 # Split by splitChar1.
@@ -168,7 +169,8 @@ def parseTokenValue(lineList, tokenList, prDict):
 	currHeader = 'others'
 	currValue = ''
 	index = len(prDict)
-	prDict[index] = {}
+	strIndex  = Prefix + str(index)
+	prDict[strIndex] = {}
 	for line in lineList:
 		wordList = Utils.getWords(line)
 		# Skip empty lines
@@ -177,7 +179,7 @@ def parseTokenValue(lineList, tokenList, prDict):
 	
 		if (wordList[0] in tokenList):
 
-			prDict[index][currHeader] = currValue
+			prDict[strIndex][currHeader] = currValue
 			currHeader = wordList[0]
 			currValue = ''
 			
@@ -189,7 +191,7 @@ def parseTokenValue(lineList, tokenList, prDict):
 		else:
 			currValue += line + '\n'
 	
-	prDict[index][currHeader] = currValue
+	prDict[strIndex][currHeader] = currValue
 
 
 #-----------------------------------------------------
@@ -225,16 +227,18 @@ def parseWorkHistory(lineList, prDict):
 	parseTokenValue(lineList, Ref.PossibleWorkHistoryHeader, tempDict)
 
 
-	if (len(tempDict[0]) > 2):
+	if (len(tempDict[Prefix+ str(0)]) > 2):
 		# TODO possible optimization ...can above result be used?
 		parseTokenValue(lineList, Ref.PossibleWorkHistoryHeader, prDict)
 	else:
 		index = len(prDict)
-		prDict[index] = {}
+		strIndex  = Prefix + str(index)
+		prDict[strIndex] = {}
 		for line in lineList:
-			prDict[index]['employment'] = line
+			prDict[strIndex]['employment'] = line
 			index = index + 1
-			prDict[index] = {}
+			strIndex  = Prefix + str(index)
+			prDict[strIndex] = {}
 		
 
 #------------------------------------------

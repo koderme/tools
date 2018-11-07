@@ -48,9 +48,12 @@ db.changeUserPassword("root", "root123")
 #--------------------------------------------------
 # Create user
 #--------------------------------------------------
- db.createUser( { user: "vishal", pwd: "vishal", roles: [ "readWrite" ] })
- db.createUser( { user: "john", pwd: "john", roles: [ { role: "readWrite", db: "ecomm" } ] })
- db.createUser( { user: "tom", pwd: "tom", roles: [ "userAdminAnyDatabase" ] })
+ db.createUser( { user: "vishal", pwd: "vishal", roles: [ "readWrite", "dbOwner"] })
+ db.createUser( { user: "vishal", pwd: "vishal", roles: [ "userAdminAnyDatabase" ] })
+ db.createUser( { user: "vishal", pwd: "vishal", roles: [ { role: "root", db: "ecomm" } ] })
+ db.createUser( { user: "vishal", pwd: "vishal", roles: [ { role: "readWrite", db: "resim" } ] })
+
+dbOwner 
 
 use admin
 db.changeUserPassword("root", "root123")
@@ -58,12 +61,15 @@ db.changeUserPassword("root", "root123")
 #--------------------------------------------------
 # Create user
 #--------------------------------------------------
- db.createUser( { user: "vishal", pwd: "vishal", roles: [ "readWrite" ] })
- db.createUser( { user: "john", pwd: "john", roles: [ { role: "readWrite", db: "ecomm" } ] })
- db.createUser( { user: "tom", pwd: "tom", roles: [ "userAdminAnyDatabase" ] })
+ [1] Login as "root" into "admin"
+ [2] Create user
+    db.createUser( { user: "u1", pwd: "password", roles: [ { role: "readWrite", db: "db1" } ] })
 
- db.dropUser("vishal")
-
+ [3] Logout 
+ [4] Login as "u1" into "db1"
+ [5] Change the db to "db1"
+     use db1
+ 
 #--------------------------------------------------
 # collection (table)
 #--------------------------------------------------

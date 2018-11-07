@@ -48,7 +48,7 @@ class CvParseResult:
 	def getSecDict(self):
 		return self.secDict
 
-	def getJson(self):
+	def getSecDictAsJson(self):
 		return json.dumps(self.secDict, indent=2)
 
 	def __str__(self):

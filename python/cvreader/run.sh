@@ -14,10 +14,15 @@ run_test()
 }
 
 case $1 in
-	run)
+	parse)
 		set -x
 		rm *.log
 		./CvMain.py --action=parse 1> test.log 2>&1
+		;;
+	parsepersist)
+		set -x
+		rm *.log
+		./CvMain.py --action=parsepersist 1> test.log 2>&1
 		;;
 
 	test)

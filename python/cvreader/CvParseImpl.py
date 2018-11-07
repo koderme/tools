@@ -55,7 +55,6 @@ class CvParseImpl(CvParse):
 
 			parseFunc(secContent.getLineList(), attrDict)
 
-		logger.debug(parseResult.getJson())
 		return parseResult
 
 #---------------------------------------------------------------
@@ -64,8 +63,7 @@ class CvParseImpl(CvParse):
 class TestCvParseImpl(unittest.TestCase):
 
 	def test_constr(self):
-		obj = CvParseImpl('temp/developer.txt')
-		obj.parse()
+		pass
 
 
 # Run unit tests
