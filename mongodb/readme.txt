@@ -40,7 +40,7 @@ sudo ufw allow 27017
 # Login
 #--------------------------------------------------
 mongo -u "root" -p --authenticationDatabase "admin"
-mongo -u "vishal" -p --authenticationDatabase "ecomm"
+mongo -u "vishal" -p --authenticationDatabase "resim"
 
 use admin
 db.changeUserPassword("root", "root123")

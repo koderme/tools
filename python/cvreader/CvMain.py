@@ -26,8 +26,8 @@ from model.CvParseResult import *
 def parseArgs(progArgs):
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-a','--action', help='parse|parsepersist', required=True)
+	parser.add_argument('-d','--dir', help='dir', required=True)
 	#parser.add_argument('-s','--skills', help='skills', required=False)
-	#parser.add_argument('-d','--dir', help='dir', required=True)
 
 	return parser.parse_args()
 
@@ -37,12 +37,18 @@ def parseArgs(progArgs):
 def	doAction(cmdArgs):
 
 	try:
-		logger.info('cmdArgs:' + str(cmdArgs))
-		if (cmdArgs.action == 'parse'):
-			doParse(cmdArgs)
 
-		if (cmdArgs.action == 'parsepersist'):
-			doParsePersist(cmdArgs)
+		cvExtns = ['txt']
+		cvfileList = Utils.getFileList(cmdArgs.dir, cvExtns)
+
+		for filepath in cvfileList:
+
+			logger.info('cmdArgs:' + str(cmdArgs))
+			if (cmdArgs.action == 'parse'):
+				doParse(filepath)
+
+			if (cmdArgs.action == 'parsepersist'):
+				doParsePersist(filepath)
 	except Exception as e:	
 		logger.exception(e)
 
@@ -50,12 +56,10 @@ def	doAction(cmdArgs):
 #----------------------------------------
 # Specific action
 #----------------------------------------
-def doParse(cmdArgs):
+def doParse(filepath):
 	prResult = None
-	parser = CvParseImpl('../mail-reader/processed/cv5.txt')
+	parser = CvParseImpl(filepath)
 	prResult = parser.parse()
-	logger.info('--------------------------------')
-	logger.info('parse-result:' + str(prResult.getSecDict()))
 	logger.info('--------------------------------')
 	logger.info('parse-result-json:' + str(prResult.getSecDictAsJson()))
 	return prResult
@@ -63,12 +67,12 @@ def doParse(cmdArgs):
 #----------------------------------------
 # Specific action
 #----------------------------------------
-def doParsePersist(cmdArgs):
+def doParsePersist(filepath):
 	connString = 'mongodb://localhost:27017/'
 	mdb = MongoDb(connString, "vishal", "vishal", "resim")
 	mdb.authenticate()
 
-	pr = doParse(cmdArgs)
+	pr = doParse(filepath)
 
 	mdb.insertOne("resim", "cv", pr.getSecDict())
 

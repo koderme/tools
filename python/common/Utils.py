@@ -89,6 +89,21 @@ class Utils:
 		else:
 			return False
 
+	#----------------------------------------
+	# Generates report with specified skills
+	#----------------------------------------
+	def getFileList(srcDir, extn):
+		retArr = []
+		for root, _, filenameArr in os.walk(srcDir):
+			for filename in filenameArr: 
+				fpath = os.path.join(root, filename)
+
+				toks = filename.split(".")
+				if ((len(toks) > 1) and (toks[-1] in extn)):
+					retArr.append(fpath)
+		return retArr
+
+
 #----------------------------------------
 # MyEnum
 #----------------------------------------
@@ -145,6 +160,15 @@ class TestThisClass(unittest.TestCase):
 		result = Utils.search(re1, 'fIrst          secoNd')
 		self.assertEqual(result, True)
 
+	def test_getFileList(self):
+		srcDir = '/home/vishal/proj/tools/python/common'
+		flist = Utils.getFileList(srcDir, ['py'])
+		self.assertEqual(True, len(flist) >= 2)
+
+		srcDir = '/home/vishal/proj/tools/shell/shell_scripts'
+		flist = Utils.getFileList(srcDir, ['sh', 'md'])
+		self.assertEqual(True, len(flist) >= 3)
+		
 
 
 # Run unit tests
