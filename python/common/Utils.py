@@ -161,11 +161,11 @@ class TestThisClass(unittest.TestCase):
 		self.assertEqual(result, True)
 
 	def test_getFileList(self):
-		srcDir = '/home/vishal/proj/tools/python/common'
+		srcDir = '/home/vishal/dev/github/tools/python/common'
 		flist = Utils.getFileList(srcDir, ['py'])
 		self.assertEqual(True, len(flist) >= 2)
 
-		srcDir = '/home/vishal/proj/tools/shell/shell_scripts'
+		srcDir = '/home/vishal/dev/github/tools/shell/shell_scripts'
 		flist = Utils.getFileList(srcDir, ['sh', 'md'])
 		self.assertEqual(True, len(flist) >= 3)
 		

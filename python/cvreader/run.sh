@@ -17,7 +17,8 @@ case $1 in
 	parse)
 		set -x
 		rm *.log
-		./CvMain.py --action=parse --dir=/home/vishal/proj/tools/python/mail-reader/processed 1> test.log 2>&1
+		#./CvMain.py --action=parse --dir=/home/vishal/proj/tools/python/mail-reader/processed 1> test.log 2>&1
+		./CvMain.py --action=parse --dir=/home/vishal/dev/github/tools/python/mail-reader/downloads/20190824/naukri
 		;;
 	parsepersist)
 		set -x

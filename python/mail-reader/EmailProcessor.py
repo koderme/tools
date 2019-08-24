@@ -33,6 +33,7 @@ class EmailProcessor:
 		handler = imaplib.IMAP4_SSL(EMAIL_OTHERS.SERVER)
 
 		try:
+			logging.info(self.emailId)
 			retCode, data = handler.login(self.emailId, getpass.getpass())
 		except imaplib.IMAP4.error:
 			logging.error("LOGIN FAILED!!! ")
