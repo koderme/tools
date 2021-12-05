@@ -1,4 +1,5 @@
 import pandas as pd
+import openpyxl
 import numpy as np
 from os import listdir
 from tabulate import tabulate
@@ -10,10 +11,11 @@ logging.basicConfig()
 logger = logging.getLogger("trade-summary")
 logger.setLevel(logging.INFO)
 
-my_dir = r'D:\database\users\vishal\assets\asset-summary\zerodha'
+#my_dir = r'D:\database\users\vishal\assets\asset-summary\zerodha'
+my_dir = r'D:\database\users\vishal\assets\zerodha-trades'
 
 
-class Helper:
+class DfUtils:
     @staticmethod
     def convert_datetime(date_str, date_fmt):
         return datetime.strptime(date_str, date_fmt)
@@ -42,6 +44,11 @@ class Helper:
         return pd.concat(df_list, axis=0)
 
     @staticmethod
+    def write_to_xls(df, file_path, worksheet_name):
+        with pd.ExcelWriter(file_path) as writer:
+            df.to_excel(writer, sheet_name=worksheet_name)
+
+    @staticmethod
     def print_pretty(df):
         """
         Print pretty
@@ -67,6 +74,7 @@ class Constants:
     period = 'period'
     profit = 'profit'
     sold = 'sold'
+    lt_mon_remaining = 'lt_mon_remaining'
 
 
 class Trade:
@@ -183,7 +191,15 @@ class TradeHelper:
     """
 
     @staticmethod
-    def get_trades(df, trade_type, symbol=None):
+    def get_trades_agg(df, trade_type, symbol=None):
+        """
+        Get buy/sell trades.
+        It performs sum aggregation on quantity.
+        :param df:
+        :param trade_type:
+        :param symbol:
+        :return: Df containing buy/sell aggregated by quantity.
+        """
 
         df1 = None
         if symbol is None:
@@ -237,8 +253,8 @@ class TradeHelper:
     def summarize(df):
         filter_sym = None
         #filter_sym = 'RITES'
-        buy_df = TradeHelper.get_trades(df, 'buy', filter_sym)
-        sell_df = TradeHelper.get_trades(df, 'sell', filter_sym)
+        buy_df = TradeHelper.get_trades_agg(df, 'buy', filter_sym)
+        sell_df = TradeHelper.get_trades_agg(df, 'sell', filter_sym)
 
         # Get unique symbols
         buy_sym_list = buy_df.symbol.unique()
@@ -298,13 +314,15 @@ class TradeHelper:
         df[Constants.sell_date] = np.where(df[Constants.sell_date].isnull(), datetime.now(), df[Constants.sell_date])
         df[Constants.period] = (df[Constants.sell_date] - df[Constants.buy_date]).dt.days
         df[Constants.sold] = np.where(df[Constants.sell_quantity].isnull(), False, True)
+        df[Constants.lt_mon_remaining] = np.where(df[Constants.sold] == False, round((df[Constants.period] - 365)/30, 0), 0)
+        df.sort_values([Constants.lt_mon_remaining], ascending=[False], inplace=True)
 
 
 # -------------------------
 # Main
 # -------------------------
-file_list = Helper.get_file_list(my_dir)
-df = Helper.read_csv(file_list)
+file_list = DfUtils.get_file_list(my_dir)
+df = DfUtils.read_csv(file_list)
 summary_df = TradeHelper.summarize(df)
 TradeHelper.add_analytics(summary_df)
-Helper.print_pretty(summary_df)
+DfUtils.write_to_xls(summary_df, "test.xlsx", "trade-summary")
