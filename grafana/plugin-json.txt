@@ -1,7 +1,7 @@
 1. Installation
 on windows
 
-  1.1 configuration > plugin > search json
+  1.1 configuration > plugin > search simplejson
   1.2 click "install"
 
   on unix

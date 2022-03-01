@@ -1,0 +1,7 @@
+region,app_name,instance,latency,color
+emea,app1,inst1,10,red
+emea,app1,inst2,20,amber
+emea,app2,inst1,400,green
+emea,app3,inst1,10,green
+emea,app4,inst1,90,amber
+emea,app5,inst1,100,red
