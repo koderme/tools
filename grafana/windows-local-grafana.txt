@@ -1,0 +1,12 @@
+
+1.  unzip the downloaded file
+2. navigate to */bin
+3. run grafana-server.exe
+
+First time
+4. login admin/admin
+
+Second time
+4. login admin/admin123
+
+

@@ -1,0 +1,37 @@
+1. Installation
+on windows
+
+  1.1 configuration > plugin > search json
+  1.2 click "install"
+
+  on unix
+  1.1 sudo grafana-cli plugins install grafana-simple-json-datasource
+  1.2 sudo service grafana-server restart
+
+
+
+2. Implement below urls
+
+Your backend needs to implement 4 urls:
+
+/ should return 200 ok. Used for "Test connection" on the datasource config page.
+/search used by the find metric options on the query tab in panels.
+/query should return metrics based on input.
+/annotations should return annotations.
+
+Those two urls are optional:
+
+/tag-keys should return tag keys for ad hoc filters.
+/tag-values should return tag values for ad hoc filters.
+
+
+
+3. Samples urls are below
+
+Example backend implementations
+https://github.com/bergquist/fake-simple-json-datasource
+https://github.com/smcquay/jsonds
+https://github.com/ContextLogic/eventmaster
+https://gist.github.com/linar-jether/95ff412f9d19fdf5e51293eb0c09b850 (Python/pandas backend)
+
+
